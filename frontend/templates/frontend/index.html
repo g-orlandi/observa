@@ -6,5 +6,11 @@
 <hr>
 {{SITE_TITLE}}
 
+<button hx-get="/hello_world" hx-swap="scroll" hx-target="#hello_target">Click Me</button>
+
+<div hx-get="#" hx-target="#hello_target" hx-vals='prova' hx-on="click:alert('abc');">Clear</div>
+<div id="hello_target">
+    owqjiq
+</div>
 {% endblock content %}
 

@@ -3,3 +3,5 @@ db.sqlite3
 __pycache__/
 
 main/settings/local.py
+
+node_modules/

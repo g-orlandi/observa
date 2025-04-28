@@ -1,2 +1,4 @@
 Django==5.2
 psycopg==3.2.6; platform_system == "Linux"
+django-npm==1.0.1
+django-htmx==1.23.0

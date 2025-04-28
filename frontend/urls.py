@@ -6,4 +6,5 @@ app_name = 'frontend'
 
 urlpatterns = [
     re_path(r'^(home/)?$', views.index, name="home"),
+    path('hello_world/', views.hello_world, name="hello_world")
 ]
