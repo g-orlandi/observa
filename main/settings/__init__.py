@@ -1,1 +1,1 @@
-from main.settings.settings import *
+from main.settings.local import *

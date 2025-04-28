@@ -1,1 +1,2 @@
 Django==5.2
+psycopg==3.2.6; platform_system == "Linux"
