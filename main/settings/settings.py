@@ -9,12 +9,14 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 
 PROJECT_INSTANCE = "observa"
 PROJECT_NAME = "observa"
+
+SITE_TITLE = "Observa"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # REMEMBER: you are in a folder named 'settings'
@@ -68,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.context_processors.main_settings',
             ],
         },
     },
@@ -120,10 +123,15 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "public", "static"))
+
+# Media files (images, ...)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "public", "media"))
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

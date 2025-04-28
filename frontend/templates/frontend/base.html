@@ -1,4 +1,8 @@
+{% load static %}
 <html>
+    <head>
+        <link rel="stylesheet" href="{% static 'frontend/styles.css'%}">
+    </head>
     <body>
         {% block content %}
         {% endblock content %}
