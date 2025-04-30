@@ -13,4 +13,5 @@ def hello_world(request):
     })
 
 def servers(request):
-    return HttpResponse('ciao')
+    return render(request, 'frontend/servers.html', {
+    })

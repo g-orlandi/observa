@@ -7,4 +7,9 @@ User = get_user_model()
 
 @admin.register(User)
 class UserAdmin(AuthUserAdmin):
-    pass
+    fieldsets = AuthUserAdmin.fieldsets + (
+        ('Profile picture', {'fields': ('profile_picture',)}),
+    )
+    add_fieldsets = AuthUserAdmin.add_fieldsets + (
+        ('Profile picture', {'fields': ('profile_picture',)}),
+    )

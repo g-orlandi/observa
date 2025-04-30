@@ -15,30 +15,22 @@
             {% block sidebar %}
             <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar">
                 <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                    <svg class="bi me-2" width="40" height="32">
-                        <use xlink:href="#bootstrap"></use>
-                    </svg>
-                    <span class="fs-4">Sidebar</span>
+                    <img src="{% static 'frontend/images/observa_logo_white.png' %}" alt="Default" width="40" height="40" class="rounded-circle me-2">
+                    <span class="fs-4">{{SITE_TITLE}}</span>
                 </a>
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a href="#" class="nav-link active" aria-current="page">
-                            <svg class="bi me-2" width="16" height="16">
-                                <use xlink:href="#home"></use>
-                            </svg>
-                            Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link text-white">
-                            <svg class="bi me-2" width="16" height="16">
-                                <use xlink:href="#speedometer2"></use>
-                            </svg>
+                        <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-current="page">
                             Dashboard
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
+                            Servers
+                        </a>
+                    </li>
+                    {% comment %} <li>
                         <a href="#" class="nav-link text-white">
                             <svg class="bi me-2" width="16" height="16">
                                 <use xlink:href="#table"></use>
@@ -58,13 +50,17 @@
                         <a href="#" class="nav-link text-white">
                             Customers
                         </a>
-                    </li>
+                    </li> {% endcomment %}
                 </ul>
                 <hr>
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{% static 'frontend/images/user.png' %}" alt="" width="32" height="32" class="rounded-circle me-2">
-                    <strong>mdo</strong>
+                    {% if request.user.profile_picture %}
+                        <img src="{% static request.user.profile_picture.url %}" alt="Foto profilo" width="32" height="32" class="rounded-circle me-2">
+                    {% else %}
+                        <img src="{% static 'frontend/images/user.png' %}" alt="Default" width="32" height="32" class="rounded-circle me-2">
+                    {% endif %}
+                    <strong>{{request.user}}</strong>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
                         <li><a class="dropdown-item" href="#">New project...</a></li>
@@ -88,7 +84,7 @@
                     </div>
                 </nav>
                 {% endblock navbar %}
-                
+
                 <div class="p-4">
                     {% block content %}
                     <h2>Content goes here</h2>
