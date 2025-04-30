@@ -31,6 +31,27 @@
                         </a>
                     </li>
                     {% comment %} <li>
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#collapseMonitoring" role="button" aria-expanded="false" aria-controls="collapseMonitoring">
+                            Servers
+                            <span class="bi bi-caret-down-fill"></span>
+                        </a>
+                        <div class="collapse ps-3" id="collapseMonitoring">
+                            <ul class="nav flex-column">
+                                <li>
+                                    <a href="#" class="nav-link text-white {% if request.resolver_match.url_name == 'uptime' %}active{% endif %}">
+                                        Uptime Kuma
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#}" class="nav-link text-white {% if request.resolver_match.url_name == 'metrics' %}active{% endif %}">
+                                        Metriche Prometheus
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li> {% endcomment %}
+                    
+                    {% comment %} <li>
                         <a href="#" class="nav-link text-white">
                             <svg class="bi me-2" width="16" height="16">
                                 <use xlink:href="#table"></use>

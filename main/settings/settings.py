@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django_htmx',
     'users',
     'frontend',
-    'backend'
+    'backend',
 ]
 
 MIDDLEWARE = [
