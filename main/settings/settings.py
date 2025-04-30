@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_htmx',
     'users',
     'frontend',
+    'backend'
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Variable defined for use our customized user model
 AUTH_USER_MODEL = 'users.User'
 
+LOGIN_REDIRECT_URL = "/" 
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -145,3 +148,4 @@ MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "public", "media"))
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
