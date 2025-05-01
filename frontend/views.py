@@ -3,18 +3,15 @@ from django.http import HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.urls import reverse_lazy
+from main import api
 
 from backend.models import Server
 
 # Create your views here.
 def dashboard(request, path):
+    data = api.get_main_data()
     return render(request, 'frontend/pages/dashboard.html', {
-        'path':path
-    })
-
-def hello_world(request):
-    assert request.htmx, "Not authorized request!"
-    return render(request, 'frontend/hello_world.html', {
+        'data': data
     })
 
 class ListServersView(ListView):
@@ -37,3 +34,4 @@ class CreateServerView(CreateView):
     success_url = reverse_lazy('frontend:servers')
     fields= '__all__'
     template_name = "frontend/components/create_server_modal.html"
+
