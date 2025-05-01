@@ -1,10 +1,73 @@
 {% extends "frontend/base.html" %}
 {% block content %}
-<div class="card border-light mb-3" style="max-width: 22rem;">
-    <div class="card-header">{{data.cpu}}</div>
-    <div class="card-body">
-      <h5 class="card-title">Light card title</h5>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+<div class="container mt-4">
+  <div class="row text-center g-3">
+
+    <!-- CPU Usage -->
+    <div class="col-md-2">
+      <div class="p-3 bg-light border rounded shadow-sm">
+        <div class="text-muted text-nowrap">
+          <i class="bi bi-cpu"></i> CPU Usage
+        </div>
+        <div class="fs-3 fw-bold">{{ data.cpu_usage_perc }}%</div>
+        <div class="text-success small text-nowrap">
+          Live
+        </div>
+      </div>
     </div>
+
+    <!-- Memory Used -->
+    <div class="col-md-2">
+      <div class="p-3 bg-light border rounded shadow-sm">
+        <div class="text-muted text-nowrap">
+          <i class="bi bi-hdd-fill"></i> Memory Used
+        </div>
+        <div class="fs-3 fw-bold">{{ data.memory_used_gb }} GB</div>
+        <div class="text-danger small text-nowrap">
+          Used of {{ data.memory_total_gb }} GB
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory Available -->
+    <div class="col-md-2">
+      <div class="p-3 bg-light border rounded shadow-sm">
+        <div class="text-muted text-nowrap">
+          <i class="bi bi-hdd-network"></i> Mem Available
+        </div>
+        <div class="fs-3 fw-bold">{{ data.memory_available_gb }} GB</div>
+        <div class="text-success small text-nowrap">
+          Free
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Memory -->
+    <div class="col-md-2">
+      <div class="p-3 bg-light border rounded shadow-sm">
+        <div class="text-muted text-nowrap">
+          <i class="bi bi-memory"></i> Total Memory
+        </div>
+        <div class="fs-3 fw-bold">{{ data.memory_total_gb }} GB</div>
+        <div class="text-muted small text-nowrap">
+          Physical RAM
+        </div>
+      </div>
+    </div>
+
+    <!-- Server Uptime -->
+    <div class="col-md-2">
+      <div class="p-3 bg-light border rounded shadow-sm">
+        <div class="text-muted text-nowrap">
+          <i class="bi bi-clock-history"></i> Uptime
+        </div>
+        <div class="fs-3 fw-bold">{{ data.server_uptime_days }} days</div>
+        <div class="text-info small text-nowrap">
+          Since last boot
+        </div>
+      </div>
+    </div>
+
   </div>
+</div>
 {% endblock content %}

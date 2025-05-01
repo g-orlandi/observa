@@ -13,14 +13,13 @@ def generic_call(q):
     except Exception as e:
         print(f"Errore nella richiesta a Prometheus: {e}")
         print("Query:", final_request)
-        return []
+        return None
 
-def get_cpu_usage():
+def get_cpu_usage_perc():
     # Usiamo rate per ottenere carico CPU per ogni core in percentuale
     q = f'100 - (avg by (instance) (rate(node_cpu_seconds_total{{instance="{server}", job="node",mode="idle"}}[5m])) * 100)'
     data = generic_call(q)
-    return data
-
+    return round(float(data), 2)
 
 def bytes_to_gb(val):
     try:
@@ -28,31 +27,40 @@ def bytes_to_gb(val):
     except:
         return None
 
-def get_memory_available():
+def get_memory_available_gb():
     q = f'node_memory_MemAvailable_bytes{{instance="{server}"}}'
     data = generic_call(q)
     if data:
         return bytes_to_gb(data)
     return None
 
-def get_memory_used():
+def get_memory_used_gb():
     q = f'node_memory_MemTotal_bytes{{instance="{server}"}} - node_memory_MemAvailable_bytes{{instance="{server}"}}'
     data = generic_call(q)
     if data:
         return bytes_to_gb(data)
     return None
 
-def get_memory_total():
+def get_memory_total_gb():
     q = f'node_memory_MemTotal_bytes{{instance="{server}"}}'
     data = generic_call(q)
     if data:
         return bytes_to_gb(data)
     return None
 
+def get_server_uptime_days():
+    q = f'sum(time() - node_boot_time_seconds{{instance=~"{server}"}})'
+    data = generic_call(q)
+    if data:
+        convert_sec_to_days = 60 * 60 * 24
+        data = float(data) / convert_sec_to_days
+        return round(data, 2)
+    return None
+
 def get_main_data():
-    return {
-        'cpu': get_cpu_usage(),
-        'memory_available_gb': get_memory_available(),
-        'memory_used_gb': get_memory_used(),
-        'memory_total_gb': get_memory_total()
-    }
+    measures = ['cpu_usage_perc', 'memory_available_gb', 'memory_used_gb', 'memory_total_gb', 'server_uptime_days']
+    data = {}
+    for measure in measures:
+        function_name = "get_" + measure
+        data[measure] = globals()[function_name]()
+    return data
