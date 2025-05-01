@@ -3,3 +3,5 @@ psycopg==3.2.6; platform_system == "Linux"
 django-npm==1.0.1
 pillow==11.2.1
 requests==2.32.3
+django-crispy-forms==2.4
+crispy-bootstrap5==2025.4

@@ -76,7 +76,14 @@
             <li>
                 <hr class="dropdown-divider">
             </li>
-            <li><a class="dropdown-item" href="#">Sign out</a></li>
+            <li>
+                <form method="post" action="{% url 'frontend:logout' %}" style="margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item text-start w-100 text-danger" style="background: none; border: none; padding: .25rem 1rem;font-color:red;">
+                    <strong>Logout</strong>
+                  </button>
+                </form>
+              </li>
         </ul>
     </div>
 </div>

@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_htmx',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'users',
     'frontend',
     'backend',
@@ -115,6 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'users.User'
 
 LOGIN_REDIRECT_URL = "/" 
+LOGOUT_REDIRECT_URL = 'frontend:login'  
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -149,3 +153,5 @@ MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "public", "media"))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
