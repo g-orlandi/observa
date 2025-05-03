@@ -22,13 +22,13 @@
 
             <div class="flex-grow-1" style="margin-left: 280px;">
                 <!-- Navbar dentro il contenuto -->
-                 {% block navbar %}
+                 {% comment %} {% block navbar %}
                 <nav class="navbar sticky-top bg-light">
                     <div class="container-fluid">
                         <a class="navbar-brand" href="#">Sticky top</a>
                     </div>
                 </nav>
-                {% endblock navbar %}
+                {% endblock navbar %} {% endcomment %}
 
                 <div class="p-4">
                     {% block content %}

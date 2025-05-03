@@ -6,14 +6,14 @@
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
+        <li>
             <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-current="page">
-                Dashboard
+                <i class="bi bi-speedometer2" style="padding-right:10px;"></i> Dashboard
             </a>
         </li>
         <li>
             <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
-                Servers
+                <i class="bi bi-hdd-network" style="padding-right:10px;"></i> Servers
             </a>
         </li>
         {% comment %} <li>
@@ -67,12 +67,13 @@
         {% else %}
             <img src="{% static 'frontend/images/user.png' %}" alt="Default" width="32" height="32" class="rounded-circle me-2">
         {% endif %}
-        <strong>{{request.user}}</strong>
+        <strong style="padding-left:10px;">{{request.user}}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-            <li><a class="dropdown-item" href="#">New project...</a></li>
-            <li><a class="dropdown-item" href="#">Settings</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            {% if user.is_superuser %}
+            <li><a class="dropdown-item" href="admin/">Admin</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="{% url 'frontend:edit_profile' %}">Profile</a></li>
             <li>
                 <hr class="dropdown-divider">
             </li>

@@ -6,13 +6,17 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from users.forms import CustomUserCreationForm
+from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_POST
+from django.shortcuts import redirect, get_object_or_404
 
 from main import api
 from backend.models import Server
 
 @login_required
 def dashboard(request, path):
-    data = api.get_main_data()
+    active_server = request.user.active_server
+    data = api.get_main_data(active_server)
     return render(request, 'frontend/pages/dashboard.html', {
         'data': data
     })
@@ -52,3 +56,22 @@ class UserCreateView(CreateView):
             "extra_links": '<a href="/login/">Already have an account?</a>'
         })
         return context
+    
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = get_user_model()
+    template_name = "frontend/users/edit.html"
+    success_url = reverse_lazy('frontend:dashboard')
+    fields = ['username', 'email', 'profile_picture']
+
+    def get_object(self):
+        return self.request.user
+    
+@login_required
+@require_POST
+def set_active_server(request):
+    server_id = request.POST.get('server_id')
+    if server_id:
+        server = get_object_or_404(Server, id=server_id, user=request.user)
+        request.user.active_server = server
+        request.user.save()
+    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))

@@ -1,0 +1,15 @@
+{% extends "frontend/base.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="d-grid mt-3">
+      <button type="submit" class="btn btn-primary"> Save </button>
+    </div>
+</form>
+        
+
+{% endblock content %}

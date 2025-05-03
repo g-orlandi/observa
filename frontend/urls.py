@@ -19,8 +19,11 @@ urlpatterns = [
             "page_title": "Login",
             "header_text": "Sign in to your account",
             "button_text": "Sign In",
-            "extra_links": '<a href="/password-reset/">Forgot your password?</a>'
+            "extra_links": '<a href="/password-reset/">Forgot your password?</a> <br> <hr> <a href="/register/">Create a new account</a>'
         }
     ), name="login"),    
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('edit_profile/', views.UserUpdateView.as_view(), name='edit_profile'),
+    path('set_active_server/', views.set_active_server, name='set_active_server'),
+
 ]
