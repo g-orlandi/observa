@@ -144,7 +144,7 @@ STATICFILES_FINDERS = [
 ]
 
 # Media files (images, ...)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "public", "media"))
 
 

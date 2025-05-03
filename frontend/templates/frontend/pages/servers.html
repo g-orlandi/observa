@@ -1,5 +1,7 @@
 {% extends "frontend/base.html" %}
 {% block content %}
+{% load static %}
+
 <h2> Servers: view, create, edit and delete</h2>
 
 	{% include "frontend/components/server_navbar.html" %}
@@ -7,9 +9,10 @@
 <table class="table table-striped">
 	<thead>
 		<tr>
+			<th scope="col"></th>
 			<th scope="col">Name</th>
-			<th scope="col">Owner</th>
 			<th scope="col">Description</th>
+			<th scope="col">URL</th>
 			<th scope="col"> Server status</th>
 			<th scope="col"></th>
 		</tr>
@@ -17,6 +20,12 @@
 	<tbody>
 		{% for p in server_list %}
 		<tr>
+			<td>
+				{% if p.logo %}
+				<img src="{{p.logo.url}}" alt="Logo server" width="36" height="36" class="rounded-circle me-2">
+				{% endif %}
+
+			</td>
 			<td>
 				<button
 					hx-get="{% url 'frontend:server_edit' pk=p.id %}"
@@ -26,8 +35,8 @@
 					data-bs-target="#my-modals"
 					class="btn primary"> <strong>{{ p.name }} </strong></button>
 			</td>
-			<td>{{ p.user }}</td>
 			<td>{{ p.description }}</td>
+			<td>{{ p.url}}:{{ p.port }}</td>
 			<td>
 				<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
 					<div style="width: 17px; height: 17px; background-color: red; border-radius: 50%;"></div>

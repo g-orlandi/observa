@@ -23,7 +23,7 @@ class ListServersView(LoginRequiredMixin, ListView):
 
 class UpdateServerView(LoginRequiredMixin, UpdateView):
     model = Server
-    fields = ['name', 'description', 'logo']
+    fields = ['name', 'description', 'url', 'port', 'logo']
     success_url = reverse_lazy('frontend:servers')
     template_name = "frontend/components/update_server_modal.html"
 
@@ -35,7 +35,7 @@ class DeleteServerView(LoginRequiredMixin, DeleteView):
 class CreateServerView(LoginRequiredMixin, CreateView):
     model = Server
     success_url = reverse_lazy('frontend:servers')
-    fields = ['name', 'description', 'logo']
+    fields = ['name', 'description', 'url', 'port', 'logo']
     template_name = "frontend/components/create_server_modal.html"
 
 class UserCreateView(CreateView):
