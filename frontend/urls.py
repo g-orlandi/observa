@@ -17,7 +17,7 @@ urlpatterns = [
         template_name="frontend/users/auth_base.html",
         extra_context={
             "page_title": "Login",
-            "header_text": "Sign in to your account",
+            "header_text": "Sign-in",
             "button_text": "Sign In",
             "extra_links": '<a href="/password-reset/">Forgot your password?</a> <br> <hr> <a href="/register/">Create a new account</a>'
         }
