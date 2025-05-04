@@ -7,89 +7,62 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
-            <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-current="page">
-                <i class="bi bi-speedometer2" style="padding-right:10px;"></i> Dashboard
+            <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
         </li>
         <li>
-            <a href="{% url 'frontend:single_server' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'single_server' %}active{% endif %}" aria-current="page">
-                <i class="bi bi-hdd-network" style="padding-right:10px;"></i> Single server info
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
-                <i class="bi bi-list"></i> Servers list
-            </a>
-        </li>
-        {% comment %} <li>
             <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#collapseMonitoring" role="button" aria-expanded="false" aria-controls="collapseMonitoring">
-                Servers
-                <span class="bi bi-caret-down-fill"></span>
+                <div>
+                    <i class="bi bi-hdd-network me-2"></i> Server
+                </div>
+                <i class="bi bi-caret-down-fill"></i>
             </a>
             <div class="collapse ps-3" id="collapseMonitoring">
                 <ul class="nav flex-column">
                     <li>
-                        <a href="#" class="nav-link text-white {% if request.resolver_match.url_name == 'uptime' %}active{% endif %}">
-                            Uptime Kuma
+                        <a href="{% url 'frontend:single_server' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'single_server' %}active{% endif %}">
+                            <i class="bi bi-cpu me-2"></i> Resources
                         </a>
                     </li>
                     <li>
                         <a href="#}" class="nav-link text-white {% if request.resolver_match.url_name == 'metrics' %}active{% endif %}">
-                            Metriche Prometheus
+                            <i class="bi bi-diagram-3 me-2"></i> Network
                         </a>
                     </li>
                 </ul>
             </div>
-        </li> {% endcomment %}
-        
-        {% comment %} <li>
-            <a href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#table"></use>
-                </svg>
-                Orders
+        </li> 
+        <li>
+            <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
+                <i class="bi bi-list me-2"></i> Servers list
             </a>
         </li>
-        <li>
-            <a href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#grid"></use>
-                </svg>
-                Products
-            </a>
-        </li>
-        <li>
-            <a href="#" class="nav-link text-white">
-                Customers
-            </a>
-        </li> {% endcomment %}
     </ul>
     <hr>
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-        {% if request.user.profile_picture %}
-            <img src="{{ request.user.profile_picture.url }}" alt="Foto profilo" width="32" height="32" class="rounded-circle me-2">
-        {% else %}
-            <img src="{% static 'frontend/images/user.png' %}" alt="Default" width="32" height="32" class="rounded-circle me-2">
-        {% endif %}
-        <strong style="padding-left:10px;">{{request.user}}</strong>
+            {% if request.user.profile_picture %}
+                <img src="{{ request.user.profile_picture.url }}" alt="Foto profilo" width="32" height="32" class="rounded-circle me-2">
+            {% else %}
+                <img src="{% static 'frontend/images/user.png' %}" alt="Default" width="32" height="32" class="rounded-circle me-2">
+            {% endif %}
+            <strong>{{request.user}}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
             {% if user.is_superuser %}
-            <li><a class="dropdown-item" href="admin/">Admin</a></li>
+            <li><a class="dropdown-item" href="/admin/">Admin</a></li>
             {% endif %}
             <li><a class="dropdown-item" href="{% url 'frontend:edit_profile' %}">Profile</a></li>
-            <li>
-                <hr class="dropdown-divider">
-            </li>
+            <li><hr class="dropdown-divider"></li>
             <li>
                 <form method="post" action="{% url 'frontend:logout' %}" style="margin: 0;">
                   {% csrf_token %}
-                  <button type="submit" class="dropdown-item text-start w-100 text-danger" style="background: none; border: none; padding: .25rem 1rem;font-color:red;">
+                  <button type="submit" class="dropdown-item text-start w-100 text-danger">
                     <strong>Logout</strong>
                   </button>
                 </form>
-              </li>
+            </li>
         </ul>
     </div>
 </div>

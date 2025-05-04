@@ -1,5 +1,9 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils.safestring import mark_safe
+import json
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.urls import reverse_lazy
@@ -9,6 +13,8 @@ from users.forms import CustomUserCreationForm
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render
+from django.utils.dateparse import parse_date
 
 from main import api
 from backend.models import Server
@@ -21,10 +27,26 @@ def dashboard(request, path):
 @login_required
 def single_server_info(request):
     active_server = request.user.active_server
-    data = api.get_main_data(active_server)
+    inst_data = api.get_instantaneous_data(active_server)
+
+    # Intervallo default per aggregati (es. ultimi 24h)
+    from django.utils import timezone
+    from datetime import timedelta
+
+    end = timezone.now().date()
+    start = end - timedelta(days=1)
+
+    aggr_data = api.get_aggregated_data(active_server, start, end)
+    print(aggr_data)
     return render(request, 'frontend/pages/single_server_info.html', {
-        'data': data
+        'inst_data': inst_data,
+        "graph_json": mark_safe(json.dumps({
+            "labels": aggr_data["cpu"]["labels"],
+            "cpu": aggr_data["cpu"]["data"],
+            "memory": aggr_data["memory"]["data"],
+    }))
     })
+
 
 class ListServersView(LoginRequiredMixin, ListView):
     model = Server
@@ -80,3 +102,37 @@ def set_active_server(request):
         request.user.active_server = server
         request.user.save()
     return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
+
+
+@login_required
+def load_graphs(request):
+    user = request.user
+    active_server = user.active_server
+
+    # Recupera e valida le date
+    start_date_str = request.GET.get("start_date")
+    end_date_str = request.GET.get("end_date")
+
+    if start_date_str:
+        start = parse_date(start_date_str)
+    else:
+        start = timezone.now().date() - timedelta(days=1)
+
+    if end_date_str:
+        end = parse_date(end_date_str)
+    else:
+        end = timezone.now().date()
+
+    # Recupera i dati da Prometheus
+    aggr_data = api.get_aggregated_data(active_server, start, end)
+
+    context = {
+
+        "graph_json": mark_safe(json.dumps({
+            "labels": aggr_data["cpu"]["labels"],
+            "cpu": aggr_data["cpu"]["data"],
+            "memory": aggr_data["memory"]["data"],
+        }))
+    }
+
+    return render(request, "frontend/components/graphs.html", context)

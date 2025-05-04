@@ -8,6 +8,7 @@
         <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
         <link href="{% static 'frontend/css/style.css' %}" rel="stylesheet">
         <link href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'dygraphs/dist/dygraph.css' %}" />
 
         {% comment %} <meta name="csrf-token" content="{{ csrf_token }}"> {% endcomment %}
 
@@ -39,5 +40,9 @@
         </div>
         <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'htmx.org/dist/htmx.js' %}"></script>
+        <script type="text/javascript" src="{% static 'dygraphs/dist/dygraph.js' %}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{% static "frontend/js/charts.js" %}"></script>
     </body>
 </html>

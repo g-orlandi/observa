@@ -1,5 +1,16 @@
 import requests
 import re
+from main import settings
+
+from requests.auth import HTTPBasicAuth
+
+from datetime import datetime
+import time
+
+def to_unix_timestamp(dt):
+    return int(time.mktime(dt.timetuple()))
+
+
 # from main.utility import bytes_to_gb
 
 def bytes_to_gb(val):
@@ -16,24 +27,28 @@ def strip_scheme(url):
     return re.sub(r'^.*?//', '', url).rstrip('/')
 
 class ApiClient:
+
     def __init__(self, url, port):
         self.url = strip_scheme(url)
         self.port = str(port)
         self.instance = f"{self.url}:{self.port}"
-        self.prometheus_url = f"http://uptime.brainstorm.it:9090/api/v1/query?query="
+        self.prometheus_url = settings.PROMETHEUS_URL
+        self.auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD) 
+
+class InstantaneousApiClient(ApiClient):
 
     def generic_call(self, q):
         final_request = self.prometheus_url + q
         print("Requesting:", final_request)
         try:
-            response = requests.get(final_request)
+            response = requests.get(final_request, auth=self.auth)
             response.raise_for_status()
             return response.json().get('data', {}).get('result', [])[0]['value'][1]
         except Exception as e:
             print(f"Errore nella richiesta a Prometheus: {e}")
             print("Query:", final_request)
             return None
-
+        
     def get_cpu_usage_perc(self):
         q = (
             f'100 - (avg by (instance) '
@@ -69,11 +84,79 @@ class ApiClient:
         data = self.generic_call(q)
         return bytes_to_gb(data) if data else None
     
-def get_main_data(active_server):
+class AggregatedApiClient(ApiClient):
+
+    def __init__(self, url, port, start_date, end_date):
+        super().__init__(url, port) 
+        self.start_date = start_date
+        self.end_date = end_date
+        self.prometheus_url = settings.PROMETHEUS_RANGE_URL
+
+
+    def generic_call(self, q):
+        final_request = self.prometheus_url + q
+        print("Requesting:", final_request)
+        try:
+            response = requests.get(final_request, auth=self.auth)
+            response.raise_for_status()
+            return response.json()['data']['result'][0]['values']
+
+        except Exception as e:
+            print(f"Errore nella richiesta a Prometheus: {e}")
+            print("Query:", final_request)
+            return None
+        
+    def build_range_query(self, promql, step='900'):
+        # Converti start/end in timestamp se sono oggetti datetime.date o datetime.datetime
+        start_ts = to_unix_timestamp(self.start_date)
+        end_ts = to_unix_timestamp(self.end_date)
+
+        params = (
+            f"{promql}"
+            f"&start={start_ts}"
+            f"&end={end_ts}"
+            f"&step={step}"
+        )
+        return params
+
+    def get_cpu_usage_perc_range(self):
+        promql = (
+            f'100 - (avg by (instance) (rate(node_cpu_seconds_total{{instance="{self.instance}",mode="idle"}}[5m])) * 100)'
+        )
+        q = self.build_range_query(promql, step='300')  # ogni 5 minuti
+        data = self.generic_call(q)
+
+        try:
+            timestamps = [datetime.fromtimestamp(v[0]).strftime("%H:%M") for v in data]
+            cpu_values = [round(float(v[1]), 2) for v in data]
+            return {"labels": timestamps, "data": cpu_values}
+        except Exception as e:
+            print("Errore parsing CPU:", e)
+            return {"labels": [], "data": []}
+
+
+    def get_memory_used_gb_range(self):
+        promql = (
+            f'node_memory_MemTotal_bytes{{instance="{self.instance}"}} - '
+            f'node_memory_MemAvailable_bytes{{instance="{self.instance}"}}'
+        )
+        q = self.build_range_query(promql, step='300')
+        data = self.generic_call(q)
+
+        try:
+            timestamps = [datetime.fromtimestamp(v[0]).strftime("%H:%M") for v in data]
+            mem_values = [bytes_to_gb(v[1]) for v in data]
+            return {"labels": timestamps, "data": mem_values}
+        except Exception as e:
+            print("Errore parsing Memoria:", e)
+            return {"labels": [], "data": []}
+
+
+def get_instantaneous_data(active_server):
     url = active_server.url
     port = active_server.port
 
-    client = ApiClient(url, port)
+    client = InstantaneousApiClient(url, port)
 
     measures = {
         'cpu_usage_perc': client.get_cpu_usage_perc,
@@ -88,3 +171,14 @@ def get_main_data(active_server):
     data['memory_used_gb'] = round(data['memory_total_gb'] - data['memory_free_gb'], 2)
     data['disk_used_gb'] = round(data['disk_total_gb'] - data['disk_free_gb'], 2)
     return data
+
+def get_aggregated_data(active_server, start_date, end_date):
+    url = active_server.url
+    port = active_server.port
+
+    client = AggregatedApiClient(url, port, start_date, end_date)
+
+    return {
+        "cpu": client.get_cpu_usage_perc_range(),
+        "memory": client.get_memory_used_gb_range()
+    }

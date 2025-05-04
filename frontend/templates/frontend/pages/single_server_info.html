@@ -1,6 +1,7 @@
 {% extends "frontend/base.html" %}
 {% block content %}
 
+<!-- Selezione server -->
 <form method="post" action="{% url 'frontend:set_active_server' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
   {% csrf_token %}
   <label for="active-server-select" class="me-2 mb-0 small">Select active server:</label>
@@ -16,54 +17,52 @@
   </select>
 </form>
 
-
-
-
+<!-- Dati principali -->
 <div class="container mt-4">
   <div class="row text-center g-3">
-
+    <h2> Actual values </h2>
     <!-- CPU Usage -->
     <div class="col-md-2">
       <div class="p-3 bg-light border rounded shadow-sm">
         <div class="text-muted text-nowrap">
           <i class="bi bi-cpu"></i> CPU Usage
         </div>
-        <div class="fs-3 fw-bold">{{ data.cpu_usage_perc }}%</div>
+        <div class="fs-3 fw-bold">{{ inst_data.cpu_usage_perc }}%</div>
         <div class="text-success small text-nowrap">
           Live
         </div>
       </div>
     </div>
 
-<!-- Memory -->
-<div class="col-md-3">
-  <div class="p-3 bg-light border rounded shadow-sm h-100">
-    <div class="text-muted text-nowrap">
-      <i class="bi bi-memory"></i> Memory used
+    <!-- Memory -->
+    <div class="col-md-3">
+      <div class="p-2 bg-light border rounded shadow-sm h-100">
+        <div class="text-muted text-nowrap small">
+          <i class="bi bi-memory"></i> Memory used
+        </div>
+        <div class="fs-6 fw-bold">
+          {{ inst_data.memory_used_gb }} GB / {{ inst_data.memory_total_gb }} GB
+        </div>
+        <div class="text-success small text-nowrap">
+          Free: {{ inst_data.memory_free_gb}} GB
+        </div>
+      </div>
     </div>
-    <div class="fs-4 fw-bold">
-      {{ data.memory_used_gb }} GB / {{ data.memory_total_gb }} GB
-    </div>
-    <div class="text-success small text-nowrap">
-      Free: {{ data.memory_free_gb}} GB
-    </div>
-  </div>
-</div>
 
-<!-- Disk -->
-<div class="col-md-3">
-  <div class="p-3 bg-light border rounded shadow-sm h-100">
-    <div class="text-muted text-nowrap">
-      <i class="bi bi-hdd-fill"></i> Disk used
+    <!-- Disk -->
+    <div class="col-md-3">
+      <div class="p-2 bg-light border rounded shadow-sm h-100">
+        <div class="text-muted text-nowrap small">
+          <i class="bi bi-hdd-fill"></i> Disk used
+        </div>
+        <div class="fs-6 fw-bold">
+          {{ inst_data.disk_used_gb }} GB / {{ inst_data.disk_total_gb }} GB
+        </div>
+        <div class="text-success small text-nowrap">
+          Free: {{ inst_data.disk_free_gb }} GB
+        </div>
+      </div>
     </div>
-    <div class="fs-4 fw-bold">
-      {{ data.disk_used_gb }} GB / {{ data.disk_total_gb }} GB
-    </div>
-    <div class="text-success small text-nowrap">
-      Free: {{ data.disk_free_gb }} GB
-    </div>
-  </div>
-</div>
 
     <!-- Server Uptime -->
     <div class="col-md-2">
@@ -71,37 +70,49 @@
         <div class="text-muted text-nowrap">
           <i class="bi bi-clock-history"></i> Uptime
         </div>
-        <div class="fs-3 fw-bold">{{ data.server_uptime_days }} days</div>
+        <div class="fs-3 fw-bold">{{ inst_data.server_uptime_days }} days</div>
         <div class="text-info small text-nowrap">
           Since last boot
         </div>
       </div>
     </div>
-
-    <!-- Grafici -->
-<div class="container mt-5">
-  <div class="row g-4">
-
-    <!-- Grafico CPU -->
-    <div class="col-md-6">
-      <div class="p-3 bg-white border rounded shadow-sm">
-        <h6 class="text-muted">CPU Usage Trend</h6>
-        <canvas id="cpuChart" height="150"></canvas>
-      </div>
-    </div>
-
-    <!-- Grafico Memoria -->
-    <div class="col-md-6">
-      <div class="p-3 bg-white border rounded shadow-sm">
-        <h6 class="text-muted">Memory Usage Trend</h6>
-        <canvas id="memoryChart" height="150"></canvas>
-      </div>
-    </div>
-
   </div>
 </div>
 
+<hr class="mt-4 mb-3">
 
-  </div>
+<!-- Intervallo temporale -->
+<div class="container mb-4">
+  <h2 class="text-center"> Historical values </h2>
+
+  <form method="get"
+        hx-get="{% url 'frontend:load_graphs' %}"
+        hx-target="#graphs-container"
+        hx-trigger="submit"
+        class="row g-2 align-items-center justify-content-start">
+    <div class="col-auto">
+      <label for="start-date" class="col-form-label small mb-0">From:</label>
+    </div>
+    <div class="col-auto">
+      <input type="date" id="start-date" name="start_date" class="form-control form-control-sm"
+             value="{{ request.GET.start_date|default:'' }}">
+    </div>
+    <div class="col-auto">
+      <label for="end-date" class="col-form-label small mb-0">To:</label>
+    </div>
+    <div class="col-auto">
+      <input type="date" id="end-date" name="end_date" class="form-control form-control-sm"
+             value="{{ request.GET.end_date|default:'' }}">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+    </div>
+  </form>
 </div>
+
+<!-- Grafici caricati dinamicamente -->
+<div id="graphs-container">
+  {% include "frontend/components/graphs.html" %}
+</div>
+
 {% endblock content %}
