@@ -42,16 +42,8 @@ class ApiClient:
         data = self.generic_call(q)
         return round(float(data), 2) if data else None
 
-    def get_memory_available_gb(self):
+    def get_memory_free_gb(self):
         q = f'node_memory_MemAvailable_bytes{{instance="{self.instance}"}}'
-        data = self.generic_call(q)
-        return bytes_to_gb(data) if data else None
-
-    def get_memory_used_gb(self):
-        q = (
-            f'node_memory_MemTotal_bytes{{instance="{self.instance}"}} - '
-            f'node_memory_MemAvailable_bytes{{instance="{self.instance}"}}'
-        )
         data = self.generic_call(q)
         return bytes_to_gb(data) if data else None
 
@@ -66,8 +58,17 @@ class ApiClient:
         if data:
             return round(float(data) / (60 * 60 * 24), 2)
         return None
+    
+    def get_disk_total_gb(self):
+        q = f'node_filesystem_size_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}}'
+        data = self.generic_call(q)
+        return bytes_to_gb(data) if data else None
 
-
+    def get_disk_free_gb(self):
+        q = f'node_filesystem_free_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}}'
+        data = self.generic_call(q)
+        return bytes_to_gb(data) if data else None
+    
 def get_main_data(active_server):
     url = active_server.url
     port = active_server.port
@@ -76,11 +77,14 @@ def get_main_data(active_server):
 
     measures = {
         'cpu_usage_perc': client.get_cpu_usage_perc,
-        'memory_available_gb': client.get_memory_available_gb,
-        'memory_used_gb': client.get_memory_used_gb,
+        'memory_free_gb': client.get_memory_free_gb,
         'memory_total_gb': client.get_memory_total_gb,
         'server_uptime_days': client.get_server_uptime_days,
+        'disk_free_gb': client.get_disk_free_gb,
+        'disk_total_gb': client.get_disk_total_gb
     }
 
     data = {key: func() for key, func in measures.items()}
+    data['memory_used_gb'] = round(data['memory_total_gb'] - data['memory_free_gb'], 2)
+    data['disk_used_gb'] = round(data['disk_total_gb'] - data['disk_free_gb'], 2)
     return data

@@ -15,9 +15,14 @@ from backend.models import Server
 
 @login_required
 def dashboard(request, path):
+    return render(request, 'frontend/pages/dashboard.html', {
+    })
+
+@login_required
+def single_server_info(request):
     active_server = request.user.active_server
     data = api.get_main_data(active_server)
-    return render(request, 'frontend/pages/dashboard.html', {
+    return render(request, 'frontend/pages/single_server_info.html', {
         'data': data
     })
 

@@ -12,8 +12,13 @@
             </a>
         </li>
         <li>
+            <a href="{% url 'frontend:single_server' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'single_server' %}active{% endif %}" aria-current="page">
+                <i class="bi bi-hdd-network" style="padding-right:10px;"></i> Single server info
+            </a>
+        </li>
+        <li>
             <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
-                <i class="bi bi-hdd-network" style="padding-right:10px;"></i> Servers
+                <i class="bi bi-list"></i> Servers list
             </a>
         </li>
         {% comment %} <li>
