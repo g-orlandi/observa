@@ -37,11 +37,18 @@
 			</td>
 			<td>{{ p.description }}</td>
 			<td>{{ p.url}}:{{ p.port }}</td>
-			<td>
-				<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-					<div style="width: 17px; height: 17px; background-color: red; border-radius: 50%;"></div>
-				  </div>
-			</td>
+			<td 
+			hx-get="{% url 'frontend:server_status_indicator' pk=p.id %}" 
+			hx-trigger="load, every 5s" 
+			hx-target="this" 
+			hx-swap="innerHTML"
+		  >
+			Caricamento...
+		  </td>
+		  
+		  
+		  
+		  
 			<td class="pe-4" style="width: 1%; white-space: nowrap;">
 				<button
   hx-get="{% url 'frontend:server_delete' pk=p.id %}"

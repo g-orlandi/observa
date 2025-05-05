@@ -178,4 +178,27 @@ def load_graphs(request):
         ]
     }
 
-    return render(request, "frontend/components/graphs.html", context)
+    return render(request, "frontend/components/graphs_and_tables.html", context)
+
+def server_status_indicator(request, pk):
+    server = Server.objects.get(id=pk)
+    url = server.url
+    port = server.port
+
+    api_client = api.InstantaneousApiClient(url, port)
+
+    status = api_client.is_on()
+
+    color_map = {
+        '1': "green",
+        '0': "red"
+    }
+    color = color_map.get(status, "gray")
+
+    html = f"""
+    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+        <div style="width: 17px; height: 17px; background-color: { color }; border-radius: 50%;"></div>
+    </div>
+    """
+
+    return HttpResponse(html)

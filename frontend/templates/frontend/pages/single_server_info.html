@@ -1,28 +1,5 @@
-{% extends "frontend/base.html" %}
-{% block content %}
-
-<!-- Selezione server -->
-<form method="post" action="{% url 'frontend:set_active_server' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
-  {% csrf_token %}
-  <label for="active-server-select" class="me-2 mb-0 small">Select active server:</label>
-  <select id="active-server-select" name="server_id"
-          class="form-select form-select-sm py-0 px-1"
-          style="height: 30px; font-size: 0.8rem; width: 300px;"
-          {% comment %} onchange="this.form.submit()" {% endcomment %}
-          >
-    {% for server in user.servers.all %}
-      <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
-        {{ server }}
-      </option>
-    {% endfor %}
-  </select>
-  <button type="submit" class="btn btn-sm btn-primary ms-2">Conferma</button>
-
-</form>
-{% if no_active_server %}
-<br>
-  <div class="alert alert-warning">Nessun server attivo selezionato.</div>
-{% else %}
+{% extends "frontend/info.html" %}
+{% block actual_values %}
 <!-- Dati principali -->
 <div class="container mt-4">
   <div class="row text-center g-3">
@@ -34,9 +11,6 @@
           <i class="bi bi-cpu"></i> CPU Usage
         </div>
         <div class="fs-3 fw-bold">{{ inst_data.cpu_usage_perc }}%</div>
-        <div class="text-success small text-nowrap">
-          Live
-        </div>
       </div>
     </div>
 
@@ -84,44 +58,7 @@
     </div>
   </div>
 </div>
-
-<hr class="mt-4 mb-3">
-
-<!-- Intervallo temporale -->
-<div class="container mb-4">
-  <h2 class="text-center"> Historical values </h2>
-
-  <form method="get"
-        hx-get="{% url 'frontend:load_graphs' %}"
-        hx-target="#graphs-container"
-        hx-trigger="submit"
-        class="row g-2 align-items-center justify-content-start">
-    <div class="col-auto">
-      <label for="start-date" class="col-form-label small mb-0">From:</label>
-    </div>
-    <div class="col-auto">
-      <input type="date" id="start-date" name="start_date" class="form-control form-control-sm"
-             value="{{ request.GET.start_date|default:'' }}">
-    </div>
-    <div class="col-auto">
-      <label for="end-date" class="col-form-label small mb-0">To:</label>
-    </div>
-    <div class="col-auto">
-      <input type="date" id="end-date" name="end_date" class="form-control form-control-sm"
-             value="{{ request.GET.end_date|default:'' }}">
-    </div>
-    <div class="col-auto">
-      <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-    </div>
-  </form>
-</div>
-
-<!-- Grafici caricati dinamicamente -->
-<div id="graphs-container">
-  {% include "frontend/components/graphs.html" %}
-  <br>
-  {% include "frontend/components/tables.html" %}
-</div>
-{% endif %}
-
-{% endblock content %}
+{% endblock actual_values %}
+{% block aggregated_values %}
+{% include "frontend/components/graphs_and_tables.html" %}
+{% endblock aggregated_values %}

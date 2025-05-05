@@ -84,6 +84,11 @@ class InstantaneousApiClient(ApiClient):
         data = self.generic_call(q)
         return bytes_to_gb(data) if data else None
     
+    def is_on(self):
+        q = f'up{{instance="{self.instance}", job="node"}}'
+        data = self.generic_call(q)
+        return data
+    
 class AggregatedApiClient(ApiClient):
 
     def __init__(self, url, port, start_date, end_date):

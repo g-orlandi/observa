@@ -1,0 +1,67 @@
+{% extends "frontend/base.html" %}
+{% block content %}
+
+<!-- Selezione server -->
+<form method="post" action="{% url 'frontend:set_active_server' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
+  {% csrf_token %}
+  <label for="active-server-select" class="me-2 mb-0 small">Select active server:</label>
+  <select id="active-server-select" name="server_id"
+          class="form-select form-select-sm py-0 px-1"
+          style="height: 30px; font-size: 0.8rem; width: 300px;"
+          {% comment %} onchange="this.form.submit()" {% endcomment %}
+          >
+    {% for server in user.servers.all %}
+      <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
+        {{ server }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-sm btn-primary ms-2">Conferma</button>
+
+</form>
+{% if no_active_server %}
+<br>
+  <div class="alert alert-warning">Nessun server attivo selezionato.</div>
+{% else %}
+{% block actual_values %}
+{% endblock actual_values %}
+<hr class="mt-4 mb-3">
+<!-- Intervallo temporale -->
+<div class="container mb-4">
+    <h2 class="text-center"> Historical values </h2>
+  
+    <form method="get"
+          hx-get="{% url 'frontend:load_graphs' %}"
+          hx-target="#graphs-container"
+          hx-trigger="submit"
+          class="row g-2 align-items-center justify-content-start">
+      <div class="col-auto">
+        <label for="start-date" class="col-form-label small mb-0">From:</label>
+      </div>
+      <div class="col-auto">
+        <input type="date" id="start-date" name="start_date" class="form-control form-control-sm"
+               value="{{ request.GET.start_date|default:'' }}">
+      </div>
+      <div class="col-auto">
+        <label for="end-date" class="col-form-label small mb-0">To:</label>
+      </div>
+      <div class="col-auto">
+        <input type="date" id="end-date" name="end_date" class="form-control form-control-sm"
+               value="{{ request.GET.end_date|default:'' }}">
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+      </div>
+    </form>
+  </div>
+{% block aggregated_values %}
+{% endblock aggregated_values %}
+{% endif %}
+
+
+
+
+
+
+
+{% endblock content %}
