@@ -1,7 +1,11 @@
 function renderCharts(cpu, mem, labels) {
-    console.log('here2');
     const cpuCanvas = document.getElementById("cpuChart");
     const memCanvas = document.getElementById("memoryChart");
+  
+    if (!cpuCanvas || !memCanvas) {
+      console.warn("Canvas non trovato, skip rendering");
+      return;
+    }
   
     const existingCpuChart = Chart.getChart(cpuCanvas);
     if (existingCpuChart) existingCpuChart.destroy();
@@ -46,6 +50,7 @@ function renderCharts(cpu, mem, labels) {
     });
   }
   
+  
   document.addEventListener("DOMContentLoaded", () => {
     const raw = document.getElementById("graph-data");
     if (raw) {
@@ -58,17 +63,18 @@ function renderCharts(cpu, mem, labels) {
     }
   });
   
-//   document.body.addEventListener("htmx:afterSwap", function (e) {
-//     if (e.detail.target.id === "graphs-container") {
-//       const raw = document.getElementById("graph-data");
-//       if (!raw) return;
+  document.body.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail.target.id === "graphs-container") {
+      const raw = document.getElementById("graph-data");
+      if (!raw) return;
   
-//       try {
-//         const { cpu, memory, labels } = JSON.parse(raw.textContent);
-//         renderCharts(cpu, memory, labels);
-//       } catch (err) {
-//         console.warn("Errore JSON HTMX:", err);
-//       }
-//     }
-//   });
+      try {
+        const { cpu, memory, labels } = JSON.parse(raw.textContent);
+        renderCharts(cpu, memory, labels);
+        console.log('here');
+      } catch (err) {
+        console.warn("Errore JSON HTMX:", err);
+      }
+    }
+  });
   
