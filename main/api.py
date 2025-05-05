@@ -99,7 +99,8 @@ class AggregatedApiClient(ApiClient):
         try:
             response = requests.get(final_request, auth=self.auth)
             response.raise_for_status()
-            return response.json()['data']['result'][0]['values']
+            data = response.json()['data']['result'][0]['values']
+            return data
 
         except Exception as e:
             print(f"Errore nella richiesta a Prometheus: {e}")
@@ -127,11 +128,28 @@ class AggregatedApiClient(ApiClient):
         data = self.generic_call(q)
 
         try:
-            timestamps = [datetime.fromtimestamp(v[0]).strftime("%H:%M") for v in data]
+            timestamps = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
             cpu_values = [round(float(v[1]), 2) for v in data]
             return {"labels": timestamps, "data": cpu_values}
         except Exception as e:
             print("Errore parsing CPU:", e)
+            return {"labels": [], "data": []}
+
+
+    def get_disk_used_gb_range(self):
+        promql = (
+            f'node_filesystem_size_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}} - '
+            f'node_filesystem_free_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}}'
+        )
+        q = self.build_range_query(promql, step='300')
+        data = self.generic_call(q)
+
+        try:
+            timestamps = [datetime.fromtimestamp(v[0]).strftime("%H:%M") for v in data]
+            disk_values = [bytes_to_gb(v[1]) for v in data]
+            return {"labels": timestamps, "data": disk_values}
+        except Exception as e:
+            print("Errore parsing Memoria:", e)
             return {"labels": [], "data": []}
 
 
@@ -180,5 +198,6 @@ def get_aggregated_data(active_server, start_date, end_date):
 
     return {
         "cpu": client.get_cpu_usage_perc_range(),
-        "memory": client.get_memory_used_gb_range()
+        "memory": client.get_memory_used_gb_range(),
+        "disk": client.get_disk_used_gb_range()
     }

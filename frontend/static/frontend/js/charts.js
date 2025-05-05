@@ -1,80 +1,75 @@
-function renderCharts(cpu, mem, labels) {
-    const cpuCanvas = document.getElementById("cpuChart");
-    const memCanvas = document.getElementById("memoryChart");
-  
-    if (!cpuCanvas || !memCanvas) {
-      console.warn("Canvas non trovato, skip rendering");
-      return;
+// Funzione per preparare i dati nel formato Dygraphs
+function prepareDygraphData(labels, dataSeries) {
+  return labels.map((label, i) => {
+    return [new Date(label), dataSeries[i]];
+  });
+}
+
+// Funzione per renderizzare i grafici CPU e Memoria
+function renderCharts(cpu, mem, disk, labels) {
+  const cpuDiv = document.getElementById("cpuChart");
+  const memDiv = document.getElementById("memoryChart");
+  const diskDiv = document.getElementById("diskChart");
+
+  const cpuData = prepareDygraphData(labels, cpu);
+  const memData = prepareDygraphData(labels, mem);
+  const diskData = prepareDygraphData(labels, disk)
+
+  new Dygraph(cpuDiv, cpuData, {
+    labels: ["Time", "CPU (%)"],
+    ylabel: "CPU (%)",
+    animatedZooms: true,
+    strokeWidth: 2,
+    colors: ["#0d6efd"],
+    legend: "always",
+    labelsUTC: true,
+  });
+
+  new Dygraph(memDiv, memData, {
+    labels: ["Time", "Memory (GB)"],
+    ylabel: "Memory Used (GB)",
+    animatedZooms: true,
+    strokeWidth: 2,
+    colors: ["#6610f2"],
+    legend: "always",
+    labelsUTC: true,
+  });
+
+  new Dygraph(diskDiv, diskData, {
+    labels: ["Time", "Disk (GB)"],
+    ylabel: "Disk Used (GB)",
+    animatedZooms: true,
+    strokeWidth: 2,
+    colors: ["#6610a2"],
+    legend: "always",
+    labelsUTC: true,
+  });
+}
+
+// Inizializza i grafici al caricamento della pagina
+document.addEventListener("DOMContentLoaded", () => {
+  const raw = document.getElementById("graph-data");
+  if (raw) {
+    try {
+      const { cpu, memory, disk, labels } = JSON.parse(raw.textContent);
+      renderCharts(cpu, memory, disk, labels);
+    } catch (err) {
+      console.warn("Errore JSON init:", err);
     }
-  
-    const existingCpuChart = Chart.getChart(cpuCanvas);
-    if (existingCpuChart) existingCpuChart.destroy();
-  
-    const existingMemChart = Chart.getChart(memCanvas);
-    if (existingMemChart) existingMemChart.destroy();
-  
-    const commonOptions = {
-      type: 'line',
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    };
-  
-    new Chart(cpuCanvas, {
-      ...commonOptions,
-      data: {
-        labels,
-        datasets: [{
-          label: "CPU (%)",
-          data: cpu,
-          borderWidth: 2
-        }]
-      }
-    });
-  
-    new Chart(memCanvas, {
-      ...commonOptions,
-      data: {
-        labels,
-        datasets: [{
-          label: "Memory Used (GB)",
-          data: mem,
-          borderWidth: 2
-        }]
-      }
-    });
   }
-  
-  
-  document.addEventListener("DOMContentLoaded", () => {
+});
+
+// Ricarica i grafici dopo HTMX swap (es. cambio intervallo)
+document.body.addEventListener("htmx:afterSwap", function (e) {
+  if (e.detail.target.id === "graphs-container") {
     const raw = document.getElementById("graph-data");
-    if (raw) {
-      try {
-        const { cpu, memory, labels } = JSON.parse(raw.textContent);
-        renderCharts(cpu, memory, labels);
-      } catch (err) {
-        console.warn("Errore JSON init:", err);
-      }
+    if (!raw) return;
+
+    try {
+      const { cpu, memory, disk, labels } = JSON.parse(raw.textContent);
+      renderCharts(cpu, memory, disk, labels);
+    } catch (err) {
+      console.warn("Errore JSON HTMX:", err);
     }
-  });
-  
-  document.body.addEventListener("htmx:afterSwap", function (e) {
-    if (e.detail.target.id === "graphs-container") {
-      const raw = document.getElementById("graph-data");
-      if (!raw) return;
-  
-      try {
-        const { cpu, memory, labels } = JSON.parse(raw.textContent);
-        renderCharts(cpu, memory, labels);
-        console.log('here');
-      } catch (err) {
-        console.warn("Errore JSON HTMX:", err);
-      }
-    }
-  });
-  
+  }
+});

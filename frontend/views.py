@@ -15,7 +15,8 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
-
+from django.utils import timezone
+from datetime import timedelta
 from main import api
 from backend.models import Server
 
@@ -25,28 +26,46 @@ def dashboard(request, path):
     })
 
 @login_required
-def single_server_info(request):
-    active_server = request.user.active_server
-    inst_data = api.get_instantaneous_data(active_server)
-
-    # Intervallo default per aggregati (es. ultimi 24h)
-    from django.utils import timezone
-    from datetime import timedelta
-
-    end = timezone.now().date()
-    start = end - timedelta(days=1)
-
-    aggr_data = api.get_aggregated_data(active_server, start, end)
-    print(aggr_data)
-    return render(request, 'frontend/pages/single_server_info.html', {
-        'inst_data': inst_data,
-        "graph_json": mark_safe(json.dumps({
-            "labels": aggr_data["cpu"]["labels"],
-            "cpu": aggr_data["cpu"]["data"],
-            "memory": aggr_data["memory"]["data"],
-    }))
+def network(request):
+    return render(request, 'frontend/pages/network.html', {
     })
 
+@login_required
+def report(request):
+    return render(request, 'frontend/pages/report.html', {
+    })
+
+@login_required
+def backup(request):
+    return render(request, 'frontend/pages/backup.html', {
+    })
+
+@login_required
+def single_server_info(request):
+    active_server = request.user.active_server
+    context = {}
+
+    if active_server:
+        inst_data = api.get_instantaneous_data(active_server)
+
+        end = timezone.now().date()
+        start = end - timedelta(days=1)
+
+        aggr_data = api.get_aggregated_data(active_server, start, end)
+
+        context.update({
+            'inst_data': inst_data,
+            'graph_json': mark_safe(json.dumps({
+                "labels": aggr_data["cpu"]["labels"],
+                "cpu": aggr_data["cpu"]["data"],
+                "memory": aggr_data["memory"]["data"],
+                "disk": aggr_data["disk"]["data"],
+            }))
+        })
+    else:
+        context['no_active_server'] = True  
+
+    return render(request, 'frontend/pages/single_server_info.html', context)
 
 class ListServersView(LoginRequiredMixin, ListView):
     model = Server
@@ -68,6 +87,10 @@ class CreateServerView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('frontend:servers')
     fields = ['name', 'description', 'url', 'port', 'logo']
     template_name = "frontend/components/create_server_modal.html"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user  
+        return super().form_valid(form)
 
 class UserCreateView(CreateView):
     form_class = CustomUserCreationForm
@@ -132,6 +155,7 @@ def load_graphs(request):
             "labels": aggr_data["cpu"]["labels"],
             "cpu": aggr_data["cpu"]["data"],
             "memory": aggr_data["memory"]["data"],
+            "disk": aggr_data["disk"]["data"]
         }))
     }
 

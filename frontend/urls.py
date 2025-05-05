@@ -8,6 +8,9 @@ app_name = 'frontend'
 
 urlpatterns = [
     re_path(r'^(dashboard/)?$', views.dashboard, name="dashboard"),
+    path('backup/', views.backup, name="backup"),
+    path('network/', views.network, name="network"),
+    path('report/', views.report, name="report"),
     path('servers/', views.ListServersView.as_view(), name="servers"),
     path('server-info/', views.single_server_info, name="single_server"),
     path('servers/<uuid:pk>/edit/', views.UpdateServerView.as_view(), name="server_edit"),
