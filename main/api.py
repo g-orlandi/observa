@@ -48,7 +48,20 @@ class InstantaneousApiClient(ApiClient):
             print(f"Errore nella richiesta a Prometheus: {e}")
             print("Query:", final_request)
             return None
-        
+    
+    def get_os(self):
+        q = f'node_os_info{{instance="{self.instance}"}}'
+        final_request = self.prometheus_url + q
+        print("Requesting:", final_request)
+        try:
+            response = requests.get(final_request, auth=self.auth)
+            response.raise_for_status()
+            return response.json().get('data', {}).get('result', [])[0]['metric']['pretty_name']
+        except Exception as e:
+            print(f"Errore nella richiesta a Prometheus: {e}")
+            print("Query:", final_request)
+            return None
+
     def get_cpu_usage_perc(self):
         q = (
             f'100 - (avg by (instance) '
@@ -86,6 +99,11 @@ class InstantaneousApiClient(ApiClient):
     
     def is_on(self):
         q = f'up{{instance="{self.instance}", job="node"}}'
+        data = self.generic_call(q)
+        return data
+    
+    def get_http_request(self):
+        q = f'increase(promhttp_metric_handler_requests_total{{instance="{self.instance}"}}[5m])'
         data = self.generic_call(q)
         return data
     
@@ -182,6 +200,7 @@ def get_instantaneous_data(active_server):
     client = InstantaneousApiClient(url, port)
 
     measures = {
+        'os': client.get_os,
         'cpu_usage_perc': client.get_cpu_usage_perc,
         'memory_free_gb': client.get_memory_free_gb,
         'memory_total_gb': client.get_memory_total_gb,
@@ -210,3 +229,39 @@ def get_aggregated_data(active_server, start_date, end_date):
         "memory": client.get_memory_used_gb_range()['data'],
         "disk": client.get_disk_used_gb_range()['data']
     }
+
+def instantaneous_network_data(active_server):
+    url = active_server.url
+    port = active_server.port
+
+    client = InstantaneousApiClient(url, port)
+
+    measures = {
+        'is_on': client.is_on,
+        'http_request': client.get_http_request
+        # 'cpu_usage_perc': client.get_cpu_usage_perc,
+        # 'memory_free_gb': client.get_memory_free_gb,
+        # 'memory_total_gb': client.get_memory_total_gb,
+        # 'server_uptime_days': client.get_server_uptime_days,
+        # 'disk_free_gb': client.get_disk_free_gb,
+        # 'disk_total_gb': client.get_disk_total_gb
+    }
+
+    data = {key: func() for key, func in measures.items()}
+    return data
+
+# def get_aggregated_data(active_server, start_date, end_date):
+#     url = active_server.url
+#     port = active_server.port
+
+#     client = AggregatedApiClient(url, port, start_date, end_date)
+#     cpu_data = client.get_cpu_usage_perc_range()
+#     labels = cpu_data['labels']
+
+#     cpu = cpu_data['data']
+#     return {
+#         "labels": labels,
+#         "cpu": cpu,
+#         "memory": client.get_memory_used_gb_range()['data'],
+#         "disk": client.get_disk_used_gb_range()['data']
+#     }

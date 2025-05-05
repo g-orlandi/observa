@@ -23,8 +23,15 @@
 <br>
   <div class="alert alert-warning">Nessun server attivo selezionato.</div>
 {% else %}
+<div class="container mt-4">
+  <div class="row text-center g-3">
+    <h2> Actual values </h2>
 {% block actual_values %}
 {% endblock actual_values %}
+
+</div>
+</div>
+
 <hr class="mt-4 mb-3">
 <!-- Intervallo temporale -->
 <div class="container mb-4">

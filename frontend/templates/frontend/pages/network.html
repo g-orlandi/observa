@@ -1,1 +1,38 @@
 {% extends "frontend/info.html" %}
+
+{% block actual_values %}
+<div class="row g-3">
+
+
+    <!-- Server Status Widget -->
+    <div class="col-md-2">
+      <div class="p-3 bg-white rounded text-center">
+        <div>
+          <div class="mx-auto mb-2" style="width: 40px; height: 40px; border-radius: 50%; background-color: {% if inst_data.is_on %}#28a745{% else %}#dc3545{% endif %};"></div>
+          <h6 class="text-muted mt-2">Server status</h6>
+          <p class="mb-0">{% if inst_data.is_on %}<span class="text-success">Online{% else %}<span class="text-danger">Offline{% endif %}</span></p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Latency Widget -->
+    <div class="col-md-4">
+      <div class="p-3 bg-white border rounded shadow-sm text-center">
+        <h6 class="text-muted">Latency</h6>
+        <h3 class="mb-1">32 <small class="text-muted">ms</small></h3>
+        <p class="text-success small">Low latency</p>
+      </div>
+    </div>
+  
+    <!-- HTTP Requests Widget -->
+    <div class="col-md-4">
+      <div class="p-3 bg-white border rounded shadow-sm text-center">
+        <h6 class="text-muted">HTTP Requests</h6>
+        <h3 class="mb-1">{{inst_data.http_request}}</h3>
+        <p class="text-muted small">In the last 5 minutes</p>
+      </div>
+    </div>
+  
+  </div>
+  
+{% endblock actual_values %}
