@@ -195,9 +195,13 @@ def get_aggregated_data(active_server, start_date, end_date):
     port = active_server.port
 
     client = AggregatedApiClient(url, port, start_date, end_date)
+    cpu_data = client.get_cpu_usage_perc_range()
+    labels = cpu_data['labels']
 
+    cpu = cpu_data['data']
     return {
-        "cpu": client.get_cpu_usage_perc_range(),
-        "memory": client.get_memory_used_gb_range(),
-        "disk": client.get_disk_used_gb_range()
+        "labels": labels,
+        "cpu": cpu,
+        "memory": client.get_memory_used_gb_range()['data'],
+        "disk": client.get_disk_used_gb_range()['data']
     }

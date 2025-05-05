@@ -56,12 +56,22 @@ def single_server_info(request):
         context.update({
             'inst_data': inst_data,
             'graph_json': mark_safe(json.dumps({
-                "labels": aggr_data["cpu"]["labels"],
-                "cpu": aggr_data["cpu"]["data"],
-                "memory": aggr_data["memory"]["data"],
-                "disk": aggr_data["disk"]["data"],
-            }))
+                "labels": aggr_data["labels"],
+                "cpu": aggr_data["cpu"],
+                "memory": aggr_data["memory"],
+                "disk": aggr_data["disk"],
+            })),
+            'table_data': [
+                {
+                    "timestamp": aggr_data["labels"][i],
+                    "cpu": aggr_data["cpu"][i],
+                    "memory": aggr_data["memory"][i],
+                    "disk": aggr_data["disk"][i],
+                }
+                for i in range(len(aggr_data["labels"]))
+            ]
         })
+
     else:
         context['no_active_server'] = True  
 
@@ -152,11 +162,20 @@ def load_graphs(request):
     context = {
 
         "graph_json": mark_safe(json.dumps({
-            "labels": aggr_data["cpu"]["labels"],
-            "cpu": aggr_data["cpu"]["data"],
-            "memory": aggr_data["memory"]["data"],
-            "disk": aggr_data["disk"]["data"]
-        }))
+            "labels": aggr_data["labels"],
+            "cpu": aggr_data["cpu"],
+            "memory": aggr_data["memory"],
+            "disk": aggr_data["disk"]
+        })),
+        'table_data': [
+            {
+                "timestamp": aggr_data["labels"][i],
+                "cpu": aggr_data["cpu"][i],
+                "memory": aggr_data["memory"][i],
+                "disk": aggr_data["disk"][i],
+            }
+            for i in range(len(aggr_data["labels"]))
+        ]
     }
 
     return render(request, "frontend/components/graphs.html", context)
