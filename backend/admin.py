@@ -1,6 +1,10 @@
 from django.contrib import admin
-from .models import Server
-# Register your models here.
+from .models import Server, PromQuery
+
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(PromQuery)
+class PromQueryAdmin(admin.ModelAdmin):
     pass

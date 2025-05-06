@@ -7,11 +7,15 @@ from . import views
 app_name = 'frontend'
 
 urlpatterns = [
+
     re_path(r'^(dashboard/)?$', views.dashboard, name="dashboard"),
-    path('backup/', views.backup, name="backup"),
+    path('resources/', views.resources, name="resources"),
     path('network/', views.network, name="network"),
+    path('backup/', views.backup, name="backup"),
     path('report/', views.report, name="report"),
     path('servers/', views.ListServersView.as_view(), name="servers"),
+
+    path("api/inst-data/<str:metric>/", views.get_instantaneous_data, name="get_instantaneous_data"),
 
     path('server-info/', views.single_server_info, name="single_server"),
     path('servers/<uuid:pk>/edit/', views.UpdateServerView.as_view(), name="server_edit"),

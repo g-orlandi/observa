@@ -28,6 +28,8 @@ def init_db_query():
             expression=expression,
             qtype=is_range
         )
+    
+    print(f'{len(query_single)} queries added!')
 
 
 # query_range = [

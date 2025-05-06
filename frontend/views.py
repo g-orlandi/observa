@@ -18,11 +18,16 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from datetime import timedelta
 from main import api
-from backend.models import Server
+from backend.models import Server, PromQuery
 
 @login_required
 def dashboard(request, path):
     return render(request, 'frontend/pages/dashboard.html', {
+    })
+
+@login_required
+def resources(request):
+    return render(request, 'frontend/pages/resources.html', {
     })
 
 @login_required
@@ -226,3 +231,14 @@ def my_box(request):
     n = random.randint(0,3)
     time.sleep(n)
     return HttpResponse(query)
+
+def get_instantaneous_data(request, metric):
+    active_server = request.user.active_server
+    
+    url = active_server.url
+    port = active_server.port
+    
+    expression = PromQuery.objects.filter(code=metric)
+
+    # import pdb;pdb.set_trace()
+    return HttpResponse(expression)
