@@ -20,3 +20,17 @@ class Server(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.url}:{self.port})"
+    
+class PromQuery(models.Model):
+    
+    class QType(models.IntegerChoices):
+        SINGLE = 0, ('Single')
+        RANGE = 1, ('Range')
+
+    title = models.CharField(max_length=50, help_text="Titolo descrittivo della query")
+    codice = models.SlugField(unique=True, help_text="Codice univoco senza spazi (es. 'cpu_usage')")
+    expression = models.TextField(help_text="Espressione PromQL da eseguire")
+    qtype = models.PositiveIntegerField(('QType'), null=False, blank=False, choices=QType.choices, default=0)
+
+    def __str__(self):
+        return f"{self.title} ({self.codice})"
