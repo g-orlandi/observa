@@ -79,10 +79,10 @@
             {% if user.is_superuser %}
             <li><a class="dropdown-item" href="/admin/">Admin</a></li>
             {% endif %}
-            <li><a class="dropdown-item" href="{% url 'frontend:edit_profile' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'users:edit_profile' %}">Profile</a></li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <form method="post" action="{% url 'frontend:logout' %}" style="margin: 0;">
+                <form method="post" action="{% url 'users:logout' %}" style="margin: 0;">
                   {% csrf_token %}
                   <button type="submit" class="dropdown-item text-start w-100 text-danger">
                     <strong>Logout</strong>
