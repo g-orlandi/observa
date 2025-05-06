@@ -243,3 +243,10 @@ def server_status_indicator(request, pk):
     """
 
     return HttpResponse(html)
+
+def my_box(request):
+    query = request.GET.get('query', 'unknown')
+    import time, random
+    n = random.randint(0,3)
+    time.sleep(n)
+    return HttpResponse(query)

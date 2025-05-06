@@ -1,6 +1,20 @@
 {% extends "frontend/base.html" %}
 {% block content %}
 
-  <h2> Info about your backup </h2>
+  {% comment %} <h2> Info about your backup </h2>
+  {% for i in "x"|rjust:"10" %}
 
+<div class="border shadow" style="width:200px;height:200px;float:left;margin:20px;">
+  <div hx-get="/mybox" hx-trigger="load"></div>
+  </div> 
+{% endfor %} {% endcomment %}
+<div class="border shadow" style="width:200px;height:200px;float:left;margin:20px;">
+  <div hx-get="/mybox?query=cpu" hx-trigger="load"></div>
+  </div> 
+  <div class="border shadow" style="width:200px;height:200px;float:left;margin:20px;">
+    <div hx-get="/mybox?query=memory" hx-trigger="load"></div>
+    </div> 
+    <div class="border shadow" style="width:200px;height:200px;float:left;margin:20px;">
+      <div hx-get="/mybox?query=storage" hx-trigger="load"></div>
+      </div> 
 {% endblock content %}

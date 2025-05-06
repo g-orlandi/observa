@@ -30,6 +30,7 @@ urlpatterns = [
     path('edit_profile/', views.UserUpdateView.as_view(), name='edit_profile'),
     path('set_active_server/', views.set_active_server, name='set_active_server'),
     path('load-graphs/', views.load_graphs, name='load_graphs'),
-    path("server-status/<uuid:pk>/", views.server_status_indicator, name="server_status_indicator")
+    path("server-status/<uuid:pk>/", views.server_status_indicator, name="server_status_indicator"),
+    path('mybox/', views.my_box, name="my-box"),
 
 ]
