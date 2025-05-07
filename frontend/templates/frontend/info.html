@@ -37,10 +37,7 @@
 <div class="container mb-4">
     <h2 class="text-center"> Historical values </h2>
   
-    <form method="get"
-          hx-get="{% url 'frontend:load_graphs' %}"
-          hx-target="#graphs-container"
-          hx-trigger="submit"
+    <form id="data-range-form" method="POST" action="/set-date-range"
           class="row g-2 align-items-center justify-content-start">
       <div class="col-auto">
         <label for="start-date" class="col-form-label small mb-0">From:</label>

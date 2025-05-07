@@ -160,8 +160,7 @@ class CreateServerView(LoginRequiredMixin, CreateView):
 def set_active_server(request):
     server_id = request.POST.get('server_id')
     if server_id:
-        server = get_object_or_404(Server, id=server_id, user=request.user)
-        request.user.active_server = server
+        request.user.active_server_id = server_id
         request.user.save()
     return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
 
@@ -255,14 +254,12 @@ from django.http import JsonResponse
 def get_range_data(request, metric):
     active_server = request.user.active_server
     end = timezone.now().date()
-    start = end - timedelta(1)
+    import random
+    start = end - timedelta(random.randint(1,10))
 
     try:
         data = api.get_range_data(active_server, metric, start, end)
     except Exception as e:
         return JsonResponse({"error": "Metric not found"}, status=404)
 
-    return JsonResponse({
-        "labels": data[0],
-        "values": data[1]
-    })
+    return JsonResponse(data)

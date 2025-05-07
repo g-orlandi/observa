@@ -2,15 +2,23 @@
   <div class="col-md-6">
     <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
       <h6 class="text-muted">CPU Usage Trend</h6>
-      <div id="cpuChart" style="width: 100%; height: 240px;"></div>
+      <div class="chart" id="cpuChart" data-metric="cpu-usage" data-color="#0d6efd" style="width: 100%; height: 240px;">
+
+      </div>
+      <button onclick="on_button_redraw_press(event)"> BOTTONE </button>
     </div>
   </div>
 
   <div class="col-md-6">
     <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
       <h6 class="text-muted">Memory Usage Trend</h6>
-      <div id="memoryChart" style="width: 100%; height: 240px;"></div>
+      <div class="chart" id="memoryChart" data-metric="mem-used" data-color="#6610f2" style="width: 100%; height: 240px;">
+
+      </div>
+    <button onclick="on_button_redraw_press(event)"> BOTTONE </button>
+
     </div>
+
   </div>
 </div>
 <br>
@@ -18,7 +26,11 @@
   <div class="col-md-6">
     <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
       <h6 class="text-muted">Disk Trend</h6>
-      <div id="diskChart" style="width: 100%; height: 240px;"></div>
+      <div class="chart" id="diskChart" data-metric="disk-used" data-colo="#6610a2" style="width: 100%; height: 240px;">
+      </div>
+    <button onclick="on_button_redraw_press(event)"> BOTTONE </button>
+
     </div>
+
   </div>
 </div>

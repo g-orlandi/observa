@@ -12,7 +12,7 @@ import time
 # url = "http://uptime.brainstorm.it:9090/api/v1/query?query="
 # server = "www1.brainstorm.it:9100"
 
-def generic_call(server, metric, qtype, range_suffix=None):
+def generic_call(server, prom_query, qtype, range_suffix=None):
     assert qtype in [0,1]
     if qtype == 0:
         assert not range_suffix, "SINGLE query should not have a range suffix"
@@ -22,7 +22,6 @@ def generic_call(server, metric, qtype, range_suffix=None):
     
     instance = f"{server.domain}:{server.port}"
 
-    prom_query = PromQuery.objects.get(code=metric)
     expression = prom_query.expression.replace("INSTANCE", instance)
 
     if qtype == 0:
@@ -48,21 +47,25 @@ def generic_call(server, metric, qtype, range_suffix=None):
         return None
     
 def get_instantaneous_data(server, metric):
+    prom_query = PromQuery.objects.get(code=metric)
+
     qtype = 0
-    data = generic_call(server, metric, qtype)
+    data = generic_call(server, prom_query, qtype)
+
     return data
 
 
 def get_range_data(server, metric, start_date, end_date):
+    prom_query = PromQuery.objects.get(code=metric)
  
     qtype = 1
     range_suffix = _generate_range_suffix(start_date, end_date)
-    data = generic_call(server, metric, qtype, range_suffix)
+    data = generic_call(server, prom_query, qtype, range_suffix)
     
     labels = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
     values = [float(v[1]) for v in data]
         
-    return (labels, values)
+    return {"labels": labels, "values": values, "title": prom_query.title}
    
 
 def _generate_range_suffix(start_date, end_date, step='900'):
