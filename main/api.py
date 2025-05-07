@@ -3,150 +3,78 @@ import re
 from main import settings
 
 from requests.auth import HTTPBasicAuth
-
+from backend.models import PromQuery
 from datetime import datetime
 import time
 
-def to_unix_timestamp(dt):
-    return int(time.mktime(dt.timetuple()))
+
 
 # url = "http://uptime.brainstorm.it:9090/api/v1/query?query="
 # server = "www1.brainstorm.it:9100"
 
-def strip_scheme(url):
-    # Rimuove tutto fino a // incluso (es. http://, https://, ftp://, ecc.)
-    return re.sub(r'^.*?//', '', url).rstrip('/')
-
-class ApiClient:
-
-    def __init__(self, url, port):
-        self.url = strip_scheme(url)
-        self.port = str(port)
-        self.instance = f"{self.url}:{self.port}"
-        self.prometheus_url = settings.PROMETHEUS_URL
-        self.auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD) 
-
-class InstantaneousApiClient(ApiClient):
-
-    def generic_call(self, q):
-        final_request = self.prometheus_url + q
-        print("Requesting:", final_request)
-        try:
-            response = requests.get(final_request, auth=self.auth)
-            response.raise_for_status()
-            return response.json().get('data', {}).get('result', [])[0]['value'][1]
-        except Exception as e:
-            print(f"Errore nella richiesta a Prometheus: {e}")
-            print("Query:", final_request)
-            return None
+def generic_call(server, metric, qtype, range_suffix=None):
+    assert qtype in [0,1]
+    if qtype == 0:
+        assert not range_suffix, "SINGLE query should not have a range suffix"
+    elif qtype == 1:
+        assert range_suffix, "RANGE query must have a range suffix"
 
     
-class AggregatedApiClient(ApiClient):
+    instance = f"{server.domain}:{server.port}"
 
-    def __init__(self, url, port, start_date, end_date):
-        super().__init__(url, port) 
-        self.start_date = start_date
-        self.end_date = end_date
-        self.prometheus_url = settings.PROMETHEUS_RANGE_URL
+    prom_query = PromQuery.objects.get(code=metric)
+    expression = prom_query.expression.replace("INSTANCE", instance)
+
+    if qtype == 0:
+        final_request = settings.PROMETHEUS_URL + expression
+    else:
+        final_request = settings.PROMETHEUS_RANGE_URL + expression + range_suffix
 
 
-    def generic_call(self, q):
-        final_request = self.prometheus_url + q
-        print("Requesting:", final_request)
-        try:
-            response = requests.get(final_request, auth=self.auth)
-            response.raise_for_status()
-            data = response.json()['data']['result'][0]['values']
-            return data
+    auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
+    try:
+        response = requests.get(final_request, auth=auth)
+        response.raise_for_status()
+        response = response.json().get('data', {}).get('result', [])[0]
+        if qtype:
+            return response['values']
+        if expression.startswith('node_os_info'):
+            return response['metric']['pretty_name']
+        return response['value'][1]
+    
+    except Exception as e:
+        print(f"Error in Prometheus request: {e}")
+        print("Query:", final_request)
+        return None
+    
+def get_instantaneous_data(server, metric):
+    qtype = 0
+    data = generic_call(server, metric, qtype)
+    return data
 
-        except Exception as e:
-            print(f"Errore nella richiesta a Prometheus: {e}")
-            print("Query:", final_request)
-            return None
+
+def get_range_data(server, metric, start_date, end_date):
+ 
+    qtype = 1
+    range_suffix = _generate_range_suffix(start_date, end_date)
+    data = generic_call(server, metric, qtype, range_suffix)
+    
+    labels = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
+    values = [float(v[1]) for v in data]
         
-    def build_range_query(self, promql, step='900'):
-        # Converti start/end in timestamp se sono oggetti datetime.date o datetime.datetime
-        start_ts = to_unix_timestamp(self.start_date)
-        end_ts = to_unix_timestamp(self.end_date)
+    return (labels, values)
+   
 
-        params = (
-            f"{promql}"
-            f"&start={start_ts}"
-            f"&end={end_ts}"
-            f"&step={step}"
-        )
-        return params
+def _generate_range_suffix(start_date, end_date, step='900'):
+    start_ts = _to_unix_timestamp(start_date)
+    end_ts = _to_unix_timestamp(end_date)
 
+    params = (
+        f"&start={start_ts}"
+        f"&end={end_ts}"
+        f"&step={step}"
+    )
+    return params
 
-def get_instantaneous_data(active_server):
-    url = active_server.url
-    port = active_server.port
-
-    client = InstantaneousApiClient(url, port)
-
-    measures = {
-        'os': client.get_os,
-        'cpu_usage_perc': client.get_cpu_usage_perc,
-        'memory_free_gb': client.get_memory_free_gb,
-        'memory_total_gb': client.get_memory_total_gb,
-        'server_uptime_days': client.get_server_uptime_days,
-        'disk_free_gb': client.get_disk_free_gb,
-        'disk_total_gb': client.get_disk_total_gb
-    }
-
-    data = {key: func() for key, func in measures.items()}
-    data['memory_used_gb'] = round(data['memory_total_gb'] - data['memory_free_gb'], 2)
-    data['disk_used_gb'] = round(data['disk_total_gb'] - data['disk_free_gb'], 2)
-    return data
-
-def get_aggregated_data(active_server, start_date, end_date):
-    url = active_server.url
-    port = active_server.port
-
-    client = AggregatedApiClient(url, port, start_date, end_date)
-    cpu_data = client.get_cpu_usage_perc_range()
-    labels = cpu_data['labels']
-
-    cpu = cpu_data['data']
-    return {
-        "labels": labels,
-        "cpu": cpu,
-        "memory": client.get_memory_used_gb_range()['data'],
-        "disk": client.get_disk_used_gb_range()['data']
-    }
-
-def instantaneous_network_data(active_server):
-    url = active_server.url
-    port = active_server.port
-
-    client = InstantaneousApiClient(url, port)
-
-    measures = {
-        'is_on': client.is_on,
-        'http_request': client.get_http_request
-        # 'cpu_usage_perc': client.get_cpu_usage_perc,
-        # 'memory_free_gb': client.get_memory_free_gb,
-        # 'memory_total_gb': client.get_memory_total_gb,
-        # 'server_uptime_days': client.get_server_uptime_days,
-        # 'disk_free_gb': client.get_disk_free_gb,
-        # 'disk_total_gb': client.get_disk_total_gb
-    }
-
-    data = {key: func() for key, func in measures.items()}
-    return data
-
-# def get_aggregated_data(active_server, start_date, end_date):
-#     url = active_server.url
-#     port = active_server.port
-
-#     client = AggregatedApiClient(url, port, start_date, end_date)
-#     cpu_data = client.get_cpu_usage_perc_range()
-#     labels = cpu_data['labels']
-
-#     cpu = cpu_data['data']
-#     return {
-#         "labels": labels,
-#         "cpu": cpu,
-#         "memory": client.get_memory_used_gb_range()['data'],
-#         "disk": client.get_disk_used_gb_range()['data']
-#     }
+def _to_unix_timestamp(dt):
+    return int(time.mktime(dt.timetuple()))

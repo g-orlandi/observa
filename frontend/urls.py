@@ -16,6 +16,7 @@ urlpatterns = [
     path('servers/', views.ListServersView.as_view(), name="servers"),
 
     path("api/inst-data/<str:metric>/", views.get_instantaneous_data, name="get_instantaneous_data"),
+    path("api/range-data/<str:metric>/", views.get_range_data, name="get_range_data"),
 
     path('server-info/', views.single_server_info, name="single_server"),
     path('servers/<uuid:pk>/edit/', views.UpdateServerView.as_view(), name="server_edit"),

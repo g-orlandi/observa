@@ -115,3 +115,15 @@
 </div>
 
 {% endblock actual_values %}
+
+{% block aggregated_values %}
+<div id="graphs-container">
+  {% include "frontend/components/graphs.html" %}
+</div>
+
+<br>
+
+<div id="tables-container">
+  {% include "frontend/components/tables.html" %}
+</div>
+{% endblock aggregated_values %}

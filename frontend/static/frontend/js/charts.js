@@ -1,75 +1,30 @@
-// Funzione per preparare i dati nel formato Dygraphs
 function prepareDygraphData(labels, dataSeries) {
-  return labels.map((label, i) => {
-    return [new Date(label), dataSeries[i]];
-  });
+  return labels.map((label, i) => [new Date(label), dataSeries[i]]);
 }
 
-// Funzione per renderizzare i grafici CPU e Memoria
-function renderCharts(cpu, mem, disk, labels) {
-  const cpuDiv = document.getElementById("cpuChart");
-  const memDiv = document.getElementById("memoryChart");
-  const diskDiv = document.getElementById("diskChart");
-
-  const cpuData = prepareDygraphData(labels, cpu);
-  const memData = prepareDygraphData(labels, mem);
-  const diskData = prepareDygraphData(labels, disk)
-
-  new Dygraph(cpuDiv, cpuData, {
-    labels: ["Time", "CPU (%)"],
-    ylabel: "CPU (%)",
+function drawChart(divId, labels, values, ylabel, color) {
+  new Dygraph(document.getElementById(divId), prepareDygraphData(labels, values), {
+    labels: ["Time", ylabel],
+    ylabel: ylabel,
     animatedZooms: true,
     strokeWidth: 2,
-    colors: ["#0d6efd"],
-    legend: "always",
-    labelsUTC: true,
-  });
-
-  new Dygraph(memDiv, memData, {
-    labels: ["Time", "Memory (GB)"],
-    ylabel: "Memory Used (GB)",
-    animatedZooms: true,
-    strokeWidth: 2,
-    colors: ["#6610f2"],
-    legend: "always",
-    labelsUTC: true,
-  });
-
-  new Dygraph(diskDiv, diskData, {
-    labels: ["Time", "Disk (GB)"],
-    ylabel: "Disk Used (GB)",
-    animatedZooms: true,
-    strokeWidth: 2,
-    colors: ["#6610a2"],
+    colors: [color],
     legend: "always",
     labelsUTC: true,
   });
 }
 
-// Inizializza i grafici al caricamento della pagina
+function fetchAndRender(metric, divId, ylabel, color) {
+  fetch(`/api/range-data/${metric}/`)
+    .then(res => res.json())
+    .then(data => {
+      drawChart(divId, data.labels, data.values, ylabel, color);
+    })
+    .catch(err => console.error(`Errore nel caricamento dati per ${metric}:`, err));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  const raw = document.getElementById("graph-data");
-  if (raw) {
-    try {
-      const { cpu, memory, disk, labels } = JSON.parse(raw.textContent);
-      renderCharts(cpu, memory, disk, labels);
-    } catch (err) {
-      console.warn("Errore JSON init:", err);
-    }
-  }
-});
-
-// Ricarica i grafici dopo HTMX swap (es. cambio intervallo)
-document.body.addEventListener("htmx:afterSwap", function (e) {
-  if (e.detail.target.id === "graphs-container") {
-    const raw = document.getElementById("graph-data");
-    if (!raw) return;
-
-    try {
-      const { cpu, memory, disk, labels } = JSON.parse(raw.textContent);
-      renderCharts(cpu, memory, disk, labels);
-    } catch (err) {
-      console.warn("Errore JSON HTMX:", err);
-    }
-  }
+  fetchAndRender("cpu-usage", "cpuChart", "CPU (%)", "#0d6efd");
+  fetchAndRender("mem-used", "memoryChart", "Memory Used (GB)", "#6610f2");
+  fetchAndRender("disk-used", "diskChart", "Disk Used (GB)", "#6610a2");
 });

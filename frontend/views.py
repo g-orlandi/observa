@@ -18,6 +18,9 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from datetime import timedelta
 from main import api
+from django.http import JsonResponse
+
+
 from backend.models import Server, PromQuery
 import requests
 from main import settings
@@ -236,32 +239,30 @@ def my_box(request):
     time.sleep(n)
     return HttpResponse(query)
 
+@login_required
 def get_instantaneous_data(request, metric):
     active_server = request.user.active_server
     
-    domain = active_server.domain
-    port = active_server.port
-    instance = f"{domain}:{port}"
-    
     try:
-        expression = PromQuery.objects.get(code=metric).expression
-        expression = expression.replace("INSTANCE", instance)
-        data = generic_call(expression)
+        data = api.get_instantaneous_data(active_server, metric)
+        return HttpResponse(data)
     except Exception as e:
-        print(e)
-        return HttpResponse("?")
+        return HttpResponse("None")
 
-    return HttpResponse(data)
+from django.http import JsonResponse
 
+@login_required
+def get_range_data(request, metric):
+    active_server = request.user.active_server
+    end = timezone.now().date()
+    start = end - timedelta(1)
 
-def generic_call(q):
-    final_request = settings.PROMETHEUS_URL + q
-    auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
     try:
-        response = requests.get(final_request, auth=auth)
-        response.raise_for_status()
-        return response.json().get('data', {}).get('result', [])[0]['value'][1]
+        data = api.get_range_data(active_server, metric, start, end)
     except Exception as e:
-        print(f"Errore nella richiesta a Prometheus: {e}")
-        print("Query:", final_request)
-        return None
+        return JsonResponse({"error": "Metric not found"}, status=404)
+
+    return JsonResponse({
+        "labels": data[0],
+        "values": data[1]
+    })
