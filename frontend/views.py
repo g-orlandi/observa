@@ -19,6 +19,10 @@ from django.utils import timezone
 from datetime import timedelta
 from main import api
 from backend.models import Server, PromQuery
+import requests
+from main import settings
+from requests.auth import HTTPBasicAuth
+import re
 
 @login_required
 def dashboard(request, path):
@@ -129,7 +133,7 @@ class ListServersView(LoginRequiredMixin, ListView):
 
 class UpdateServerView(LoginRequiredMixin, UpdateView):
     model = Server
-    fields = ['name', 'description', 'url', 'port', 'logo']
+    fields = ['name', 'description', 'domain', 'port', 'logo']
     success_url = reverse_lazy('frontend:servers')
     template_name = "frontend/components/update_server_modal.html"
 
@@ -141,7 +145,7 @@ class DeleteServerView(LoginRequiredMixin, DeleteView):
 class CreateServerView(LoginRequiredMixin, CreateView):
     model = Server
     success_url = reverse_lazy('frontend:servers')
-    fields = ['name', 'description', 'url', 'port', 'logo']
+    fields = ['name', 'description', 'domain', 'port', 'logo']
     template_name = "frontend/components/create_server_modal.html"
 
     def form_valid(self, form):
@@ -235,10 +239,29 @@ def my_box(request):
 def get_instantaneous_data(request, metric):
     active_server = request.user.active_server
     
-    url = active_server.url
+    domain = active_server.domain
     port = active_server.port
+    instance = f"{domain}:{port}"
     
-    expression = PromQuery.objects.filter(code=metric)
+    try:
+        expression = PromQuery.objects.get(code=metric).expression
+        expression = expression.replace("INSTANCE", instance)
+        data = generic_call(expression)
+    except Exception as e:
+        print(e)
+        return HttpResponse("?")
 
-    # import pdb;pdb.set_trace()
-    return HttpResponse(expression)
+    return HttpResponse(data)
+
+
+def generic_call(q):
+    final_request = settings.PROMETHEUS_URL + q
+    auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
+    try:
+        response = requests.get(final_request, auth=auth)
+        response.raise_for_status()
+        return response.json().get('data', {}).get('result', [])[0]['value'][1]
+    except Exception as e:
+        print(f"Errore nella richiesta a Prometheus: {e}")
+        print("Query:", final_request)
+        return None

@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 
 class Server(models.Model):
@@ -12,14 +12,21 @@ class Server(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE, related_name='servers')
     logo = models.ImageField(upload_to='server_pictures/', blank=True, null=True)
-    url = models.URLField()
+    
+    domain = models.CharField(
+        max_length=253,
+        validators=[RegexValidator(regex=r'^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$',message="Insert a valid domain")],
+        null=False,
+        blank=False
+    )
+    
     port = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(65535)],
         default=9100
     )
     
     def __str__(self):
-        return f"{self.name} ({self.url}:{self.port})"
+        return f"{self.name} ({self.domain}:{self.port})"
     
 class PromQuery(models.Model):
     

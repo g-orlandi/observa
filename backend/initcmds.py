@@ -8,23 +8,24 @@ def init_db_query():
         return
     
     query_single = [
-        ("CPU usage (%)", "cpu-usage", '100 - (avg by (instance) (rate(node_cpu_seconds_total{{instance="{self.instance}", job="node",mode="idle"}}[5m])) * 100)', 0),
-        ("Operating System", "OS" , 'node_os_info{{instance="{self.instance}"}}', 0),
-        ("Memory free (GB)", "mem-free", 'node_memory_MemAvailable_bytes{{instance="{self.instance}"}} / 1073741824', 0),
-        ("Memory used (GB)", "mem-used", '(node_memory_MemTotal_bytes{{instance="{self.instance}"}} - node_memory_MemAvailable_bytes{{instance="{self.instance}"}}) / 1073741824', 0),
-        ("Memory total (GB)", "mem-tot", 'node_memory_MemTotal_bytes{{instance="{self.instance}"}} / 1073741824', 0),
-        ("Disk free (GB)", "disk-free", 'node_filesystem_free_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}} / 1073741824', 0),   
-        ("Disk used (GB)", "disk-used", '(node_filesystem_size_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}} - node_filesystem_free_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}}) / 1073741824', 0),     
-        ("Disk total (GB)", "disk-tot", 'node_filesystem_size_bytes{{instance="{self.instance}",fstype=~"ext4|xfs"}} / 1073741824', 0),        
-        ("Is on", "is-on", 'up{{instance="{self.instance}", job="node"}}', 0),        
-        ("Uptime days", "uptime-days", '(time() - node_boot_time_seconds{{instance=~"{self.instance}"}}) / 86400', 0),        
-        ("Http request", "http-req", 'increase(promhttp_metric_handler_requests_total{{instance="{self.instance}"}}[5m])', 0),        
+        ("CPU usage (%)", "cpu-usage", 'round(100 - (avg by (instance) (rate(node_cpu_seconds_total{instance="INSTANCE", job="node",mode="idle"}[5m])) * 100), 1/100)', 0),
+        ("Operating System", "os", 'node_os_info{instance="INSTANCE"}', 0),
+        ("Memory free (GB)", "mem-free", 'round(node_memory_MemAvailable_bytes{instance="INSTANCE"} / 1073741824, 1/100)', 0),
+        ("Memory used (GB)", "mem-used", 'round((node_memory_MemTotal_bytes{instance="INSTANCE"} - node_memory_MemAvailable_bytes{instance="INSTANCE"}) / 1073741824, 1/100)', 0),
+        ("Memory total (GB)", "mem-tot", 'round(node_memory_MemTotal_bytes{instance="INSTANCE"} / 1073741824, 1/100)', 0),
+        ("Disk free (GB)", "disk-free", 'round(node_filesystem_free_bytes{instance="INSTANCE",fstype=~"ext4|xfs"} / 1073741824, 1/100)', 0),   
+        ("Disk used (GB)", "disk-used", 'round((node_filesystem_size_bytes{instance="INSTANCE",fstype=~"ext4|xfs"} - node_filesystem_free_bytes{instance="INSTANCE",fstype=~"ext4|xfs"}) / 1073741824, 1/100)', 0),     
+        ("Disk total (GB)", "disk-tot", 'round(node_filesystem_size_bytes{instance="INSTANCE",fstype=~"ext4|xfs"} / 1073741824, 1/100)', 0),        
+        ("Is on", "is-on", 'up{instance="INSTANCE", job="node"}', 0),        
+        ("Uptime days", "uptime-days", 'round((time() - node_boot_time_seconds{instance=~"INSTANCE"}) / 86400, 1/100)', 0),        
+        ("Http request", "http-req", 'increase(promhttp_metric_handler_requests_total{instance="INSTANCE"}[5m])', 0),        
     ]
 
-    for title, codice, expression, is_range in query_single:
+
+    for title, code, expression, is_range in query_single:
         PromQuery.objects.create(
             title=title,
-            codice=codice,
+            code=code,
             expression=expression,
             qtype=is_range
         )
