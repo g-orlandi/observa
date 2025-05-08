@@ -13,18 +13,17 @@ urlpatterns = [
 
     path("api/inst-data/<str:metric>/", views.get_instantaneous_data, name="get_instantaneous_data"),
     path("api/range-data/<str:metric>/", views.get_range_data, name="get_range_data"),
-
-    path('server-info/', views.single_server_info, name="single_server"),
+    path("api/inst-data/is-on", views.get_server_status, name="get_server_status"),
+    
     path('servers/<uuid:pk>/edit/', views.UpdateServerView.as_view(), name="server_edit"),
     path('servers/create/', views.CreateServerView.as_view(), name="server_create"),
     path('servers/<uuid:pk>/delete/', views.DeleteServerView.as_view(), name="server_delete"),
     
-    path('set_active_server/', views.set_active_server, name='set_active_server'),
+    path('set-active-server/', views.set_active_server, name='set_active_server'),
     path('set-date-range/', views.set_date_range, name='set_date_range'),
 
 
-    path('load-graphs/', views.load_graphs, name='load_graphs'),
-    path("server-status/<uuid:pk>/", views.server_status_indicator, name="server_status_indicator"),
+    # path("server-status/<uuid:pk>/", views.get_server_status, name="get_server_status"),
     path('mybox/', views.my_box, name="my-box"),
 
 ]

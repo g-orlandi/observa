@@ -27,6 +27,8 @@ from main import settings
 from requests.auth import HTTPBasicAuth
 import re
 
+################### Main pages ###################
+
 @login_required
 def dashboard(request, path):
     return render(request, 'frontend/pages/dashboard.html', {
@@ -52,42 +54,7 @@ def backup(request):
     return render(request, 'frontend/pages/backup.html', {
     })
 
-@login_required
-def single_server_info(request):
-    active_server = request.user.active_server
-    context = {}
-
-    if active_server:
-        inst_data = api.get_instantaneous_data(active_server)
-
-        end = timezone.now().date()
-        start = end - timedelta(days=1)
-
-        aggr_data = api.get_aggregated_data(active_server, start, end)
-
-        context.update({
-            'inst_data': inst_data,
-            'graph_json': mark_safe(json.dumps({
-                "labels": aggr_data["labels"],
-                "cpu": aggr_data["cpu"],
-                "memory": aggr_data["memory"],
-                "disk": aggr_data["disk"],
-            })),
-            'table_data': [
-                {
-                    "timestamp": aggr_data["labels"][i],
-                    "cpu": aggr_data["cpu"][i],
-                    "memory": aggr_data["memory"][i],
-                    "disk": aggr_data["disk"][i],
-                }
-                for i in range(len(aggr_data["labels"]))
-            ]
-        })
-
-    else:
-        context['no_active_server'] = True  
-
-    return render(request, 'frontend/pages/single_server_info.html', context)
+######################################################
 
 @login_required
 def network(request):
@@ -130,6 +97,8 @@ def network(request):
 
     return render(request, 'frontend/pages/network.html', context)
 
+################### Servers list ###################
+
 class ListServersView(LoginRequiredMixin, ListView):
     model = Server
     template_name = "frontend/pages/servers.html"
@@ -154,89 +123,18 @@ class CreateServerView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user  
         return super().form_valid(form)
-    
-@login_required
-@require_POST
-def set_active_server(request):
-    server_id = request.POST.get('server_id')
-    if server_id:
-        request.user.active_server_id = server_id
-        request.user.save()
-    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
 
-
-@login_required
-def load_graphs(request):
-    user = request.user
-    active_server = user.active_server
-
-    # Recupera e valida le date
-    start_date_str = request.GET.get("start_date")
-    end_date_str = request.GET.get("end_date")
-
-    if start_date_str:
-        start = parse_date(start_date_str)
-    else:
-        start = timezone.now().date() - timedelta(days=1)
-
-    if end_date_str:
-        end = parse_date(end_date_str)
-    else:
-        end = timezone.now().date()
-
-    # Recupera i dati da Prometheus
-    aggr_data = api.get_aggregated_data(active_server, start, end)
-
-    context = {
-
-        "graph_json": mark_safe(json.dumps({
-            "labels": aggr_data["labels"],
-            "cpu": aggr_data["cpu"],
-            "memory": aggr_data["memory"],
-            "disk": aggr_data["disk"]
-        })),
-        'table_data': [
-            {
-                "timestamp": aggr_data["labels"][i],
-                "cpu": aggr_data["cpu"][i],
-                "memory": aggr_data["memory"][i],
-                "disk": aggr_data["disk"][i],
-            }
-            for i in range(len(aggr_data["labels"]))
-        ]
-    }
-
-    return render(request, "frontend/components/graphs_and_tables.html", context)
-
-def server_status_indicator(request, pk):
-    server = Server.objects.get(id=pk)
-    url = server.url
-    port = server.port
-
-    api_client = api.InstantaneousApiClient(url, port)
-
-    status = api_client.is_on()
-
-    color_map = {
-        '1': "green",
-        '0': "red"
-    }
-    color = color_map.get(status, "gray")
-
-    html = f"""
-    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-        <div style="width: 17px; height: 17px; background-color: { color }; border-radius: 50%;"></div>
-    </div>
-    """
-
+def get_server_status(request):
+    active_server = request.user.active_server
+    response = api.get_instantaneous_data(active_server, 'is-on')
+    color = "green" if int(response) == 1 else "red"
+    html = f'<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:{color};"></span>'
     return HttpResponse(html)
 
-def my_box(request):
-    query = request.GET.get('query', 'unknown')
-    import time, random
-    n = random.randint(0,3)
-    time.sleep(n)
-    return HttpResponse(query)
+
+######################################################
+
+################### Resources ########################
 
 @login_required
 def get_instantaneous_data(request, metric):
@@ -247,8 +145,6 @@ def get_instantaneous_data(request, metric):
         return HttpResponse(data)
     except Exception as e:
         return HttpResponse("None")
-
-from django.http import JsonResponse
 
 @login_required
 def get_range_data(request, metric):
@@ -271,6 +167,15 @@ def get_range_data(request, metric):
 
 @login_required
 @require_POST
+def set_active_server(request):
+    server_id = request.POST.get('server_id')
+    if server_id:
+        request.user.active_server_id = server_id
+        request.user.save()
+    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
+
+@login_required
+@require_POST
 def set_date_range(request):
     user = request.user
     try:
@@ -278,3 +183,12 @@ def set_date_range(request):
         return HttpResponse(status=204)
     except Exception as e:
         return HttpResponseBadRequest(e)
+
+######################################################
+
+def my_box(request):
+    query = request.GET.get('query', 'unknown')
+    import time, random
+    n = random.randint(0,3)
+    time.sleep(n)
+    return HttpResponse(query)

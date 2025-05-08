@@ -38,13 +38,15 @@
 			<td>{{ p.description }}</td>
 			<td>{{ p.domain}}:{{ p.port }}</td>
 			<td 
-			hx-get="{% url 'frontend:server_status_indicator' pk=p.id %}" 
+			hx-get="{% url 'frontend:get_server_status' %}" 
 			hx-trigger="load, every 5s" 
 			hx-target="this" 
 			hx-swap="innerHTML"
 		  >
-			Caricamento...
+			Loading...
 		  </td>
+		  
+		  
 		  
 		  
 		  

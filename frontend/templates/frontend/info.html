@@ -8,7 +8,6 @@
   <select id="active-server-select" name="server_id"
           class="form-select form-select-sm py-0 px-1"
           style="height: 30px; font-size: 0.8rem; width: 300px;"
-          {% comment %} onchange="this.form.submit()" {% endcomment %}
           >
     {% for server in user.servers.all %}
       <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
