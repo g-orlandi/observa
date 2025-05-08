@@ -117,7 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Variable defined for use our customized user model
 AUTH_USER_MODEL = 'users.User'
 
-LOGIN_REDIRECT_URL = "/" 
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'       # dopo il login
 LOGOUT_REDIRECT_URL = 'users:login'  
 
 
@@ -156,3 +157,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only

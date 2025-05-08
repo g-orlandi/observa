@@ -1,6 +1,164 @@
 {% extends "frontend/info.html" %}
-
 {% block actual_values %}
-<div class="row g-3">
+
+<div class="row g-3 text-center">
+  <!-- OS Info (2 col) -->
+  <div class="col-md-2">
+    <div class="p-3 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted text-nowrap small">
+        <i class="bi bi-gear-fill"></i> Status
+      </div>
+      <div class="fs-3 fw-bold">
+        <span 
+          {% comment %} hx-get="{% url 'frontend:get_instantaneous_data' metric='os' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML"
+          class="d-inline-block" {% endcomment %}
+          >
+          ?
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPU Usage (2 col) -->
+  <div class="col-md-2">
+    <div class="p-3 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted text-nowrap small">
+        <i class="bi bi-cpu"></i> Latency
+      </div>
+      <div class="fs-3 fw-bold">
+        <span 
+          {% comment %} hx-get="{% url 'frontend:get_instantaneous_data' metric='cpu-usage' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML"
+          class="d-inline-block" {% endcomment %}
+          >
+          ?
+        </span>%
+      </div>
+    </div>
+  </div>
+
+  {% comment %} <!-- Memory (3 col) -->
+  <div class="col-md-3">
+    <div class="p-2 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted text-nowrap small">
+        <i class="bi bi-memory"></i> Memory used
+      </div>
+      <div class="fs-4 fw-bold">
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-used' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB /
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-tot' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+      <div class="text-success small text-nowrap">
+        Free: 
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-free' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+    </div>
+  </div>
+
+  <!-- Disk (3 col) -->
+  <div class="col-md-3">
+    <div class="p-2 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted text-nowrap small">
+        <i class="bi bi-hdd-fill"></i> Disk used
+      </div>
+      <div class="fs-4 fw-bold">
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-used' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB /
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-tot' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+      <div class="text-success small text-nowrap">
+        Free: 
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-free' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row g-3 text-center mt-2">
+  <!-- Uptime (2 col) -->
+  <div class="col-md-2">
+    <div class="p-3 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted text-nowrap small">
+        <i class="bi bi-clock-history"></i> Uptime
+      </div>
+      <div class="fs-3 fw-bold">
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='uptime-days' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> days
+      </div>
+      <div class="text-info small text-nowrap">
+        Since last boot
+      </div>
+    </div>
+  </div>
+
+  <!-- Server Status (2 col) -->
+  <div class="col-md-2">
+    <div class="p-3 bg-light border rounded shadow-sm h-100 text-center">
+      <div class="text-muted text-nowrap small mb-2">
+        Server Status
+      </div>
+      <div class="fs-5 fw-semibold"
+           hx-get="{% url 'frontend:get_server_status' %}" 
+           hx-trigger="load, every 60s" 
+           hx-swap="innerHTML">
+        ?
+      </div>
+    </div>
+  </div>
+
+  <!-- Latency (4 col) -->
+  <div class="col-md-2">
+    <div class="p-3 bg-light border rounded shadow-sm h-100 text-center">
+      <h6 class="text-muted">Latency (5m)</h6>
+      <h3 class="mb-1 d-inline">
+        <span id="latency-value"
+              hx-get="{% url 'frontend:get_instantaneous_data' metric='http-req' %}" 
+              hx-trigger="load, every 60s" 
+              hx-swap="innerHTML">
+          ?
+        </span> <small class="text-muted">ms</small>
+      </h3>
+    </div>
+  </div>
+</div> {% endcomment %}
 
 {% endblock actual_values %}
+
+{% comment %} {% block aggregated_values %}
+<div id="graphs-container">
+  {% include "frontend/components/graphs.html" %}
+</div>
+
+<br>
+
+<div id="tables-container">
+  {% include "frontend/components/tables.html" %}
+</div>
+{% endblock aggregated_values %} {% endcomment %}
