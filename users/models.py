@@ -4,10 +4,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta, date
 from backend.models import Server  # importa solo se già esiste
+from django.db.models import Q
 
 # Create your models here.
 class User(AbstractUser):
+
+    class Plan(models.IntegerChoices):
+        FREE = 0, ('Free')
+        PRO = 1, ('Pro')
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True, blank=False, null=False)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     active_server = models.ForeignKey(
         Server,
@@ -18,6 +25,10 @@ class User(AbstractUser):
     )
     filter_date_from = models.DateField('From', null=True, blank=True)
     filter_date_to = models.DateField('To', null=True, blank=True)
+
+    plan = models.PositiveIntegerField(('Plan'), null=False, blank=False, choices=Plan.choices, default=0)
+
+    REQUIRED_FIELDS = ['email'] # Used when creating superuser
 
     def __str__(self):
         text = self.get_full_name()
@@ -50,3 +61,9 @@ class User(AbstractUser):
             self.filter_date_from = start_date
             self.filter_date_to = end_date
             self.save()
+
+    def get_accessible_servers(self):
+        # Remember: Django default is AND
+        return Server.objects.filter(
+            Q(user=self) | Q(group__in=self.groups.all())
+        ).distinct()

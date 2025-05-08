@@ -9,7 +9,7 @@
           class="form-select form-select-sm py-0 px-1"
           style="height: 30px; font-size: 0.8rem; width: 300px;"
           >
-    {% for server in user.servers.all %}
+    {% for server in user.get_accessible_servers %}
       <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
         {{ server }}
       </option>
@@ -18,10 +18,7 @@
   <button type="submit" class="btn btn-sm btn-primary ms-2">Conferma</button>
 
 </form>
-{% if no_active_server %}
-<br>
-  <div class="alert alert-warning">Nessun server attivo selezionato.</div>
-{% else %}
+
 <div class="container mt-4">
   <div class="row text-center g-3">
     <h2> Actual values </h2>
@@ -60,7 +57,6 @@
   </div>
 {% block aggregated_values %}
 {% endblock aggregated_values %}
-{% endif %}
 
 
 {% endblock content %}

@@ -7,9 +7,14 @@ User = get_user_model()
 
 @admin.register(User)
 class UserAdmin(AuthUserAdmin):
-    fieldsets = AuthUserAdmin.fieldsets + (
-        ('Profile picture', {'fields': ('profile_picture',)}),
+    list_display = list(AuthUserAdmin.list_display)[:] + ['plan']
+
+    extra_fields = (
+        ('Others', {'fields': ('profile_picture', 'plan')}),
     )
-    add_fieldsets = AuthUserAdmin.add_fieldsets + (
-        ('Profile picture', {'fields': ('profile_picture',)}),
-    )
+    fieldsets = AuthUserAdmin.fieldsets + extra_fields
+    add_fieldsets = AuthUserAdmin.add_fieldsets + extra_fields
+
+    def get_list_display(self, request):
+        list_display = super(UserAdmin, self).get_list_display(request)[:]
+        return list_display
