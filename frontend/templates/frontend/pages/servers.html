@@ -39,7 +39,7 @@
 			<td>{{ p.domain}}:{{ p.port }}</td>
 			<td 
 			hx-get="{% url 'frontend:get_server_status' %}" 
-			hx-trigger="load, every 5s" 
+			hx-trigger="load, every 60s" 
 			hx-target="this" 
 			hx-swap="innerHTML"
 		  >

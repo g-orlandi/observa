@@ -18,7 +18,7 @@ def init_db_query():
             ("Disk total (GB)", "disk-tot", 'round(node_filesystem_size_bytes{instance="INSTANCE",fstype=~"ext4|xfs"} / 1073741824, 1/100)', 0),        
             ("Is on", "is-on", 'up{instance="INSTANCE", job="node"}', 0),        
             ("Uptime days", "uptime-days", 'round((time() - node_boot_time_seconds{instance=~"INSTANCE"}) / 86400, 1/100)', 0),        
-            ("Http request", "http-req", 'increase(promhttp_metric_handler_requests_total{instance="INSTANCE"}[5m])', 0),        
+            ("Http request", "http-req", 'round(increase(promhttp_metric_handler_requests_total{instance="INSTANCE"}[5m]), 1/100)', 0),        
         ]
 
 

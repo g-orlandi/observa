@@ -56,46 +56,46 @@ def backup(request):
 
 ######################################################
 
-@login_required
-def network(request):
-    active_server = request.user.active_server
-    context = {}
+# @login_required
+# def network(request):
+#     active_server = request.user.active_server
+#     context = {}
 
-    if active_server:
-        inst_data = api.instantaneous_network_data(active_server)
-        context.update({
-            'inst_data': inst_data
-        })
-        # inst_data = api.get_instantaneous_data(active_server)
+#     if active_server:
+#         inst_data = api.instantaneous_network_data(active_server)
+#         context.update({
+#             'inst_data': inst_data
+#         })
+#         # inst_data = api.get_instantaneous_data(active_server)
 
-        # end = timezone.now().date()
-        # start = end - timedelta(days=1)
+#         # end = timezone.now().date()
+#         # start = end - timedelta(days=1)
 
-        # aggr_data = api.get_aggregated_data(active_server, start, end)
+#         # aggr_data = api.get_aggregated_data(active_server, start, end)
 
-        # context.update({
-        #     'inst_data': inst_data,
-        #     'graph_json': mark_safe(json.dumps({
-        #         "labels": aggr_data["labels"],
-        #         "cpu": aggr_data["cpu"],
-        #         "memory": aggr_data["memory"],
-        #         "disk": aggr_data["disk"],
-        #     })),
-        #     'table_data': [
-        #         {
-        #             "timestamp": aggr_data["labels"][i],
-        #             "cpu": aggr_data["cpu"][i],
-        #             "memory": aggr_data["memory"][i],
-        #             "disk": aggr_data["disk"][i],
-        #         }
-        #         for i in range(len(aggr_data["labels"]))
-        #     ]
-        # })
+#         # context.update({
+#         #     'inst_data': inst_data,
+#         #     'graph_json': mark_safe(json.dumps({
+#         #         "labels": aggr_data["labels"],
+#         #         "cpu": aggr_data["cpu"],
+#         #         "memory": aggr_data["memory"],
+#         #         "disk": aggr_data["disk"],
+#         #     })),
+#         #     'table_data': [
+#         #         {
+#         #             "timestamp": aggr_data["labels"][i],
+#         #             "cpu": aggr_data["cpu"][i],
+#         #             "memory": aggr_data["memory"][i],
+#         #             "disk": aggr_data["disk"][i],
+#         #         }
+#         #         for i in range(len(aggr_data["labels"]))
+#         #     ]
+#         # })
 
-    else:
-        context['no_active_server'] = True  
+#     else:
+#         context['no_active_server'] = True  
 
-    return render(request, 'frontend/pages/network.html', context)
+#     return render(request, 'frontend/pages/network.html', context)
 
 ################### Servers list ###################
 
