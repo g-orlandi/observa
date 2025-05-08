@@ -1,23 +1,12 @@
 {% extends "frontend/base.html" %}
 {% block content %}
 
-<!-- Selezione server -->
-<form method="post" action="{% url 'frontend:set_active_server' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
-  {% csrf_token %}
-  <label for="active-server-select" class="me-2 mb-0 small">Select active server:</label>
-  <select id="active-server-select" name="server_id"
-          class="form-select form-select-sm py-0 px-1"
-          style="height: 30px; font-size: 0.8rem; width: 300px;"
-          >
-    {% for server in user.get_accessible_servers %}
-      <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
-        {{ server }}
-      </option>
-    {% endfor %}
-  </select>
-  <button type="submit" class="btn btn-sm btn-primary ms-2">Conferma</button>
 
-</form>
+{% if request.resolver_match.url_name == "network" %}
+    {% include "frontend/components/endpoint_select.html" %}
+{% elif request.resolver_match.url_name == "resources" %}
+    {% include "frontend/components/server_select.html" %}
+{% endif %}
 
 <div class="container mt-4">
   <div class="row text-center g-3">

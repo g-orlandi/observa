@@ -30,8 +30,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white {% if request.resolver_match.url_name == 'endpoints' %}active{% endif %}">
-            {% comment %} <a href="{% url 'frontend:endpoints' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'endpoints' %}active{% endif %}"> {% endcomment %}
+            <a href="{% url 'frontend:endpoints' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'endpoints' %}active{% endif %}">
                 <i class="bi bi-list-columns-reverse me-2"></i> Endpoints list
             </a>
         </li>

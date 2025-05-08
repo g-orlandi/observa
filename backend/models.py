@@ -62,15 +62,21 @@ class Endpoint(MonitoredEntity):
         return f"{self.name} ({self.url})"
 
 class PromQuery(models.Model):
-    
-    class QType(models.IntegerChoices):
-        SINGLE = 0, ('Single')
-        RANGE = 1, ('Range')
+
+    class TargetSystem(models.TextChoices):
+        PROMETHEUS = "prometheus", "Prometheus"
+        UPTIME = "uptime", "Uptime Kuma"
+        RESTIC = "restic", "Restic"
+
 
     title = models.CharField(max_length=50, help_text="Titolo descrittivo della query")
     code = models.SlugField(unique=True, help_text="Codice univoco senza spazi (es. 'cpu_usage')")
     expression = models.TextField(help_text="Espressione PromQL da eseguire")
-    qtype = models.PositiveIntegerField(('QType'), null=False, blank=False, choices=QType.choices, default=0)
+    target_system = models.CharField(
+        max_length=20,
+        choices=TargetSystem.choices,
+        default=TargetSystem.PROMETHEUS
+    )
 
     def __str__(self):
         return f"{self.title} ({self.code})"

@@ -21,7 +21,7 @@ from main import api
 from django.http import JsonResponse, HttpResponseBadRequest
 
 
-from backend.models import Server, PromQuery
+from backend.models import Server, PromQuery, Endpoint
 import requests
 from main import settings
 from requests.auth import HTTPBasicAuth
@@ -54,49 +54,6 @@ def backup(request):
     return render(request, 'frontend/pages/backup.html', {
     })
 
-######################################################
-
-# @login_required
-# def network(request):
-#     active_server = request.user.active_server
-#     context = {}
-
-#     if active_server:
-#         inst_data = api.instantaneous_network_data(active_server)
-#         context.update({
-#             'inst_data': inst_data
-#         })
-#         # inst_data = api.get_instantaneous_data(active_server)
-
-#         # end = timezone.now().date()
-#         # start = end - timedelta(days=1)
-
-#         # aggr_data = api.get_aggregated_data(active_server, start, end)
-
-#         # context.update({
-#         #     'inst_data': inst_data,
-#         #     'graph_json': mark_safe(json.dumps({
-#         #         "labels": aggr_data["labels"],
-#         #         "cpu": aggr_data["cpu"],
-#         #         "memory": aggr_data["memory"],
-#         #         "disk": aggr_data["disk"],
-#         #     })),
-#         #     'table_data': [
-#         #         {
-#         #             "timestamp": aggr_data["labels"][i],
-#         #             "cpu": aggr_data["cpu"][i],
-#         #             "memory": aggr_data["memory"][i],
-#         #             "disk": aggr_data["disk"][i],
-#         #         }
-#         #         for i in range(len(aggr_data["labels"]))
-#         #     ]
-#         # })
-
-#     else:
-#         context['no_active_server'] = True  
-
-#     return render(request, 'frontend/pages/network.html', context)
-
 ################### Servers list ###################
 
 class ListServersView(LoginRequiredMixin, ListView):
@@ -107,18 +64,18 @@ class UpdateServerView(LoginRequiredMixin, UpdateView):
     model = Server
     fields = ['name', 'description', 'domain', 'port', 'logo']
     success_url = reverse_lazy('frontend:servers')
-    template_name = "frontend/components/update_server_modal.html"
+    template_name = "frontend/modals/update_server_modal.html"
 
 class DeleteServerView(LoginRequiredMixin, DeleteView):
     model = Server
     success_url = reverse_lazy('frontend:servers')
-    template_name = "frontend/components/delete_server_confirmation_modal.html"
+    template_name = "frontend/modals/delete_server_confirmation_modal.html"
 
 class CreateServerView(LoginRequiredMixin, CreateView):
     model = Server
     success_url = reverse_lazy('frontend:servers')
-    fields = ['name', 'description', 'domain', 'port', 'logo']
-    template_name = "frontend/components/create_server_modal.html"
+    fields = ['name', 'description', 'domain', 'port', 'logo', 'group']
+    template_name = "frontend/modals/create_server_modal.html"
 
     def form_valid(self, form):
         form.instance.user = self.request.user  
@@ -131,6 +88,35 @@ def get_server_status(request):
     html = f'<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:{color};"></span>'
     return HttpResponse(html)
 
+
+######################################################
+
+################### Endpoints list ###################
+
+class ListEndpointsView(LoginRequiredMixin, ListView):
+    model = Endpoint
+    template_name = "frontend/pages/endpoints.html"
+
+class CreateEndpointView(LoginRequiredMixin, CreateView):
+    model = Endpoint
+    success_url = reverse_lazy('frontend:endpoints')
+    fields = ['name', 'description', 'url', 'check_keyword', 'logo', 'group']
+    template_name = "frontend/modals/create_endpoint_modal.html"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class UpdateEndpointView(LoginRequiredMixin, UpdateView):
+    model = Endpoint
+    fields = ['name', 'description', 'url', 'check_keyword', 'logo']
+    success_url = reverse_lazy('frontend:endpoints')
+    template_name = "frontend/modals/update_endpoint_modal.html"
+
+class DeleteEndpointView(LoginRequiredMixin, DeleteView):
+    model = Endpoint
+    success_url = reverse_lazy('frontend:endpoints')
+    template_name = "frontend/components/delete_endpoint_confirmation_modal.html"
 
 ######################################################
 
@@ -173,6 +159,16 @@ def set_active_server(request):
         request.user.active_server_id = server_id
         request.user.save()
     return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
+
+@login_required
+@require_POST
+def set_active_endpoint(request):
+    endpoint_id = request.POST.get('endpoint_id')
+    if endpoint_id:
+        request.user.active_endpoint_id = endpoint_id
+        request.user.save()
+    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
+
 
 @login_required
 @require_POST

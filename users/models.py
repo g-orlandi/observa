@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta, date
-from backend.models import Server  # importa solo se già esiste
+from backend.models import Server, Endpoint
 from django.db.models import Q
 
 # Create your models here.
@@ -18,6 +18,13 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     active_server = models.ForeignKey(
         Server,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='active_user'
+    )
+    active_endpoint = models.ForeignKey(
+        Endpoint,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -65,5 +72,11 @@ class User(AbstractUser):
     def get_accessible_servers(self):
         # Remember: Django default is AND
         return Server.objects.filter(
+            Q(user=self) | Q(group__in=self.groups.all())
+        ).distinct()
+
+    def get_accessible_endpoints(self):
+        # Remember: Django default is AND
+        return Endpoint.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
         ).distinct()
