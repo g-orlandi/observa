@@ -16,9 +16,9 @@ from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from main import api
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 
 
 from backend.models import Server, PromQuery
@@ -252,14 +252,29 @@ from django.http import JsonResponse
 
 @login_required
 def get_range_data(request, metric):
-    active_server = request.user.active_server
-    end = timezone.now().date()
-    import random
-    start = end - timedelta(random.randint(1,10))
+    user = request.user
+    active_server = user.active_server
+
+    date_filter = user.get_active_date_filters()
+    start_date = date_filter['date_from']
+    end_date = date_filter['date_to']
+
+    print(start_date)
+    print(end_date)
 
     try:
-        data = api.get_range_data(active_server, metric, start, end)
+        data = api.get_range_data(active_server, metric, start_date, end_date)
     except Exception as e:
         return JsonResponse({"error": "Metric not found"}, status=404)
 
     return JsonResponse(data)
+
+@login_required
+@require_POST
+def set_date_range(request):
+    user = request.user
+    try:
+        user.set_active_date_filters(request.POST['start_date'], request.POST['end_date'])
+        return HttpResponse(status=204)
+    except Exception as e:
+        return HttpResponseBadRequest(e)

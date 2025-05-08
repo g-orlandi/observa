@@ -36,11 +36,6 @@ function fetchAndRender(divId) {
     .catch(err => console.error(`Errore nel caricamento dati per ${metric}:`, err));
 }
 
-function refreshChart(element){
-  console.log('refreshing %o', element);
-  fetchAndRender(element.id);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   fetchAndRender("cpuChart");
   fetchAndRender("memoryChart");
@@ -79,20 +74,25 @@ function onDataRangeFormSubmit(event){
             'X-Requested-With': 'XMLHttpRequest'
         }
     }
-  ).then(refreshAllCharts());
+  ).then(response => {
+    if(response.ok){
+    refreshAllCharts()
+    }
+    else if (response.status === 400){
+      response.text().then(text => {
+        alert("Error: " + text);
+      })
+    }
+  }
+  );
 }
 
 
-function on_button_redraw_press(event){
-  chart_element = event.target.parentElement.querySelector('.chart');
-  refreshChart(chart_element);
-  // refresh_all_charts();
-}
 
 function refreshAllCharts(){
   elements = document.querySelectorAll('.chart');
   console.log(elements)
   for (i = 0; i < elements.length; i++){
-    refreshChart(elements[i]);
+    fetchAndRender(elements[i].id);
   };
 }

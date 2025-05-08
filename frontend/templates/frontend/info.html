@@ -37,21 +37,22 @@
 <div class="container mb-4">
     <h2 class="text-center"> Historical values </h2>
   
-    <form id="data-range-form" method="POST" action="/set-date-range"
+    <form id="data-range-form" method="POST" action="/set-date-range/"
           class="row g-2 align-items-center justify-content-start">
+          {% csrf_token %}
       <div class="col-auto">
         <label for="start-date" class="col-form-label small mb-0">From:</label>
       </div>
       <div class="col-auto">
         <input type="date" id="start-date" name="start_date" class="form-control form-control-sm"
-               value="{{ request.GET.start_date|default:'' }}">
+               value="{{ request.user.get_active_date_filters.date_from | date:'Y-m-d'}}">
       </div>
       <div class="col-auto">
         <label for="end-date" class="col-form-label small mb-0">To:</label>
       </div>
       <div class="col-auto">
         <input type="date" id="end-date" name="end_date" class="form-control form-control-sm"
-               value="{{ request.GET.end_date|default:'' }}">
+               value="{{ request.user.get_active_date_filters.date_to | date:'Y-m-d'}}">
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-sm btn-primary">Apply</button>
@@ -62,7 +63,7 @@
 {% endblock aggregated_values %}
 {% endif %}
 
-
+{{request.user.get_active_date_filters.date_from}}
 
 
 

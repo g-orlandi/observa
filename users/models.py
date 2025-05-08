@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from datetime import datetime, timedelta, date
 from backend.models import Server  # importa solo se già esiste
 
 # Create your models here.
@@ -16,9 +16,37 @@ class User(AbstractUser):
         on_delete=models.SET_NULL,
         related_name='active_user'
     )
+    filter_date_from = models.DateField('From', null=True, blank=True)
+    filter_date_to = models.DateField('To', null=True, blank=True)
 
     def __str__(self):
         text = self.get_full_name()
         if len(text) <= 0:
             text = self.username
         return text
+    
+    def get_active_date_filters(self):
+        if self.filter_date_to is not None:
+            date_to = self.filter_date_to
+        else:
+            date_to = date.today()
+        if self.filter_date_from is not None:
+            date_from = self.filter_date_from
+        else:
+            date_from = date_to - timedelta(days=2)
+        return {
+            'date_from': date_from,
+            'date_to': date_to,
+        }
+    
+    def set_active_date_filters(self, start_date, end_date):
+        DATE_FORMAT = "%Y-%m-%d"
+        start_date = datetime.strptime(start_date, DATE_FORMAT)
+        end_date = datetime.strptime(end_date, DATE_FORMAT)
+
+        if start_date > end_date:
+            raise Exception("Start date cannot be after the end date.")
+        else:
+            self.filter_date_from = start_date
+            self.filter_date_to = end_date
+            self.save()

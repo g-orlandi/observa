@@ -43,6 +43,7 @@
         <script type="text/javascript" src="{% static 'dygraphs/dist/dygraph.js' %}"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="{% static "frontend/js/charts.js" %}"></script>
+        {% block extrajs %}
+        {% endblock extrajs %}
     </body>
 </html>
