@@ -5,11 +5,10 @@
         <span class="fs-4">{{SITE_TITLE}}</span>
     </a>
     <hr>
+
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
-            <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard
-            </a>
+            <span class="text-uppercase small ps-2"><strong>Server</strong></span>
         </li>
         <li>
             <a href="{% url 'frontend:resources' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'resources' %}active{% endif %}">
@@ -17,54 +16,41 @@
             </a>
         </li>
         <li>
+            <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
+                <i class="bi bi-list me-2"></i> Servers list
+            </a>
+        </li>
+    
+        <li>
+            <span class="text-uppercase small ps-2"><strong>Endpoint</strong></span>
+            </li>
+        <li>
             <a href="{% url 'frontend:network' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'network' %}active{% endif %}">
                 <i class="bi bi-diagram-3 me-2"></i> Network
             </a>
         </li>
         <li>
-            <a href="{% url 'frontend:backup' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'backup' %}active{% endif %}">
-                <i class="bi bi-arrow-repeat"></i>    Backup
+            <a href="#" class="nav-link text-white {% if request.resolver_match.url_name == 'endpoints' %}active{% endif %}">
+            {% comment %} <a href="{% url 'frontend:endpoints' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'endpoints' %}active{% endif %}"> {% endcomment %}
+                <i class="bi bi-list-columns-reverse me-2"></i> Endpoints list
             </a>
         </li>
-        {% comment %} <li>
-            <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#collapseMonitoring" role="button" aria-expanded="false" aria-controls="collapseMonitoring">
-                <div>
-                    <i class="bi bi-hdd-network me-2"></i> Server
-                </div>
-                <i class="bi bi-caret-down-fill"></i>
-            </a>
-            <div class="collapse ps-3" id="collapseMonitoring">
-                <ul class="nav flex-column">
-                    <li>
-                        <a href="{% url 'frontend:single_server' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'single_server' %}active{% endif %}">
-                            <i class="bi bi-cpu me-2"></i> Resources
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'frontend:network' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'network' %}active{% endif %}">
-                            <i class="bi bi-diagram-3 me-2"></i> Network
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'frontend:backup' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'backup' %}active{% endif %}">
-                            <i class="bi bi-arrow-repeat"></i>    Backup
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>  {% endcomment %}
+    
         <li>
-            <a href="{% url 'frontend:servers' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'servers' %}active{% endif %}">
-                <i class="bi bi-list me-2"></i> Servers list
+            <span class="text-uppercase small ps-2"><strong>Others</strong></span>
+            </li>
+        <li>
+            <a href="{% url 'frontend:backup' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'backup' %}active{% endif %}">
+                <i class="bi bi-arrow-repeat"></i> Backup
             </a>
         </li>
-
         <li>
             <a href="{% url 'frontend:report' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'report' %}active{% endif %}">
-                <i class="bi bi-graph-up"></i>  Report
+                <i class="bi bi-graph-up"></i> Report
             </a>
         </li>
     </ul>
+
     <hr>
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -92,3 +78,5 @@
         </ul>
     </div>
 </div>
+
+
