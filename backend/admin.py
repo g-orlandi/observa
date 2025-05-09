@@ -7,4 +7,4 @@ class ServerAdmin(admin.ModelAdmin):
 
 @admin.register(PromQuery)
 class PromQueryAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["title", "code", "target_system"]

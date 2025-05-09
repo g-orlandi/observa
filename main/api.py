@@ -7,28 +7,38 @@ from backend.models import PromQuery
 from datetime import datetime
 import time
 
-
+import requests
+import time
+from datetime import datetime
+from requests.auth import HTTPBasicAuth
+from backend.models import PromQuery, Server, Endpoint
+from main import settings
 
 # url = "http://uptime.brainstorm.it:9090/api/v1/query?query="
 # server = "www1.brainstorm.it:9100"
 
-def generic_call(server, prom_query, qtype, range_suffix=None):
+def generic_call(entity, prom_query, qtype, range_suffix=None):
     assert qtype in [0,1]
     if qtype == 0:
         assert not range_suffix, "SINGLE query should not have a range suffix"
     elif qtype == 1:
         assert range_suffix, "RANGE query must have a range suffix"
 
-    
-    instance = f"{server.domain}:{server.port}"
+    if isinstance(entity, Server):
+        assert prom_query.target_system == PromQuery.TargetSystem.PROMETHEUS, "Absent metric for Server obj."
+        instance = f"{entity.domain}:{entity.port}"
+        expression = prom_query.expression.replace("INSTANCE", instance)
 
-    expression = prom_query.expression.replace("INSTANCE", instance)
+    if isinstance(entity, Endpoint):
+        assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
+        url = entity.url
+        expression = prom_query.expression.replace("MONITOR-URL", url)
+
 
     if qtype == 0:
         final_request = settings.PROMETHEUS_URL + expression
     else:
         final_request = settings.PROMETHEUS_RANGE_URL + expression + range_suffix
-
 
     auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
     try:
@@ -55,12 +65,12 @@ def get_instantaneous_data(server, metric):
     return data
 
 
-def get_range_data(server, metric, start_date, end_date):
+def get_range_data(entity, metric, start_date, end_date):
     prom_query = PromQuery.objects.get(code=metric)
  
     qtype = 1
     range_suffix = _generate_range_suffix(start_date, end_date)
-    data = generic_call(server, prom_query, qtype, range_suffix)
+    data = generic_call(entity, prom_query, qtype, range_suffix)
     
     labels = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
     values = [float(v[1]) for v in data]

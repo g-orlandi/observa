@@ -123,7 +123,7 @@
         Server Status
       </div>
       <div class="fs-5 fw-semibold"
-           hx-get="{% url 'frontend:get_server_status' %}" 
+           hx-get="{% url 'frontend:get_entity_status' %}" 
            hx-trigger="load, every 60s" 
            hx-swap="innerHTML">
         ?

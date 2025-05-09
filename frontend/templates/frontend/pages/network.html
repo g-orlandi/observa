@@ -10,10 +10,10 @@
       </div>
       <div class="fs-3 fw-bold">
         <span 
-          {% comment %} hx-get="{% url 'frontend:get_instantaneous_data' metric='os' %}" 
+          hx-get="{% url 'frontend:get_entity_status' %}?source=endpoint" 
           hx-trigger="load" 
           hx-swap="outerHTML"
-          class="d-inline-block" {% endcomment %}
+          class="d-inline-block"
           >
           ?
         </span>
@@ -29,10 +29,10 @@
       </div>
       <div class="fs-3 fw-bold">
         <span 
-          {% comment %} hx-get="{% url 'frontend:get_instantaneous_data' metric='cpu-usage' %}" 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='response-time' %}?source=endpoint" 
           hx-trigger="load" 
           hx-swap="outerHTML"
-          class="d-inline-block" {% endcomment %}
+          class="d-inline-block" 
           >
           ?
         </span>%

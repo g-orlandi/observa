@@ -81,9 +81,17 @@ class CreateServerView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user  
         return super().form_valid(form)
 
-def get_server_status(request):
-    active_server = request.user.active_server
-    response = api.get_instantaneous_data(active_server, 'is-on')
+def get_entity_status(request):
+
+    source = request.GET.get("source", "server")
+    if source == "server":
+        active_entity = request.user.active_server
+        metric = 'is-on'
+    elif source == "endpoint":
+        active_entity = request.user.active_endpoint
+        metric = 'monitor-status'
+
+    response = api.get_instantaneous_data(active_entity, metric)
     color = "green" if int(response) == 1 else "red"
     html = f'<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:{color};"></span>'
     return HttpResponse(html)
@@ -124,10 +132,14 @@ class DeleteEndpointView(LoginRequiredMixin, DeleteView):
 
 @login_required
 def get_instantaneous_data(request, metric):
-    active_server = request.user.active_server
+    source = request.GET.get("source", "server")
+    if source == "server":
+        active_entity = request.user.active_server
+    elif source == "endpoint":
+        active_entity = request.user.active_endpoint
     
     try:
-        data = api.get_instantaneous_data(active_server, metric)
+        data = api.get_instantaneous_data(active_entity, metric)
         return HttpResponse(data)
     except Exception as e:
         return HttpResponse("None")
