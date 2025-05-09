@@ -131,17 +131,17 @@
     </div>
   </div>
 
-  <!-- Latency (4 col) -->
+  <!-- Http request (4 col) -->
   <div class="col-md-2">
     <div class="p-3 bg-light border rounded shadow-sm h-100 text-center">
-      <h6 class="text-muted">Latency (5m)</h6>
+      <h6 class="text-muted">Http request (5m)</h6>
       <h3 class="mb-1 d-inline">
         <span id="latency-value"
               hx-get="{% url 'frontend:get_instantaneous_data' metric='http-req' %}" 
               hx-trigger="load, every 60s" 
               hx-swap="innerHTML">
           ?
-        </span> <small class="text-muted">ms</small>
+        </span> 
       </h3>
     </div>
   </div>
@@ -151,7 +151,7 @@
 
 {% block aggregated_values %}
 <div id="graphs-container">
-  {% include "frontend/components/graphs.html" %}
+  {% include "frontend/components/graphs_server.html" %}
 </div>
 
 <br>

@@ -40,6 +40,8 @@ def generic_call(entity, prom_query, qtype, range_suffix=None):
     else:
         final_request = settings.PROMETHEUS_RANGE_URL + expression + range_suffix
 
+    print(final_request)
+
     auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
     try:
         response = requests.get(final_request, auth=auth)
@@ -56,11 +58,11 @@ def generic_call(entity, prom_query, qtype, range_suffix=None):
         print("Query:", final_request)
         return None
     
-def get_instantaneous_data(server, metric):
+def get_instantaneous_data(entity, metric):
     prom_query = PromQuery.objects.get(code=metric)
 
     qtype = 0
-    data = generic_call(server, prom_query, qtype)
+    data = generic_call(entity, prom_query, qtype)
 
     return data
 

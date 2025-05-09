@@ -32,8 +32,10 @@ def init_db_query():
         if not PromQuery.objects.filter(target_system=PromQuery.TargetSystem.UPTIME).exists():
             target_system = "uptime"
             queries = [
-                ("Monitor status", "monitor-status", 'monitor_status{monitor_url=~"MONITOR-URL"}'),
+                ("Monitor status", "monitor-status", 'monitor_status{monitor_url="MONITOR-URL"}'),
                 ("Response time", "response-time", 'avg_over_time(monitor_response_time{monitor_url="MONITOR-URL"}[5m])'),
+                ("Certificate days remaining", "cert-days-rem", 'monitor_cert_days_remaining{monitor_url="MONITOR-URL"}'),
+                ("Uptime percentage", "uptime-perc", 'round(avg_over_time(monitor_status{monitor_url="MONITOR-URL"}[30d])*100, 1/100)')
             ]
 
 

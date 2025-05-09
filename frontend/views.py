@@ -147,7 +147,11 @@ def get_instantaneous_data(request, metric):
 @login_required
 def get_range_data(request, metric):
     user = request.user
-    active_server = user.active_server
+    source = request.GET.get("source", "server")
+    if source == "server":
+        active_entity = request.user.active_server
+    elif source == "endpoint":
+        active_entity = request.user.active_endpoint
 
     date_filter = user.get_active_date_filters()
     start_date = date_filter['date_from']
@@ -157,9 +161,9 @@ def get_range_data(request, metric):
     print(end_date)
 
     try:
-        data = api.get_range_data(active_server, metric, start_date, end_date)
+        data = api.get_range_data(active_entity, metric, start_date, end_date)
     except Exception as e:
-        return JsonResponse({"error": "Metric not found"}, status=404)
+        return JsonResponse({"error": "Metric not found [e]"}, status=404)
 
     return JsonResponse(data)
 

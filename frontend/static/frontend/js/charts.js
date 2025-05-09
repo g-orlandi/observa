@@ -28,7 +28,14 @@ function drawChart(divId, data) {
 function fetchAndRender(divId) {
   element = document.getElementById(divId);
   metric = element.dataset['metric'];
-  fetch(`/api/range-data/${metric}/`)
+  pathname = window.location.pathname;
+  if (pathname === '/network/'){
+    source = 'endpoint';
+  }
+  else if(pathname === '/resources/'){
+    source = 'server';
+  }
+  fetch(`/api/range-data/${metric}?source=${source}`)
     .then(res => res.json())
     .then(data => {   
       drawChart(divId, data);
@@ -37,9 +44,11 @@ function fetchAndRender(divId) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetchAndRender("cpuChart");
-  fetchAndRender("memoryChart");
-  fetchAndRender("diskChart");
+  elements = document.querySelectorAll('.chart');
+  console.log(elements)
+  for (i = 0; i < elements.length; i++){
+    fetchAndRender(elements[i].id);
+  };
 
   // Intercettiamo l'evento submit perche' vogliamo gestirlo via js per evitare di ricaricare l'intera pagina
   let form = document.getElementById("data-range-form");
