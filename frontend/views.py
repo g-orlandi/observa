@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from users.forms import CustomUserCreationForm
 from django.contrib.auth import get_user_model
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.shortcuts import redirect, get_object_or_404
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
@@ -30,26 +30,31 @@ import re
 ################### Main pages ###################
 
 @login_required
+@require_GET
 def dashboard(request, path):
     return render(request, 'frontend/pages/dashboard.html', {
     })
 
 @login_required
+@require_GET
 def resources(request):
     return render(request, 'frontend/pages/resources.html', {
     })
 
 @login_required
+@require_GET
 def network(request):
     return render(request, 'frontend/pages/network.html', {
     })
 
 @login_required
+@require_GET
 def report(request):
     return render(request, 'frontend/pages/report.html', {
     })
 
 @login_required
+@require_GET
 def backup(request):
     return render(request, 'frontend/pages/backup.html', {
     })
@@ -81,6 +86,8 @@ class CreateServerView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user  
         return super().form_valid(form)
 
+@login_required
+@require_GET
 def get_entity_status(request):
 
     source = request.GET.get("source", "server")
@@ -91,9 +98,11 @@ def get_entity_status(request):
         active_entity = request.user.active_endpoint
         metric = 'monitor-status'
 
+    dim = "22px"
+    
     response = api.get_instantaneous_data(active_entity, metric)
     color = "green" if int(response) == 1 else "red"
-    html = f'<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:{color};"></span>'
+    html = f'<span style="display:inline-block; width:{dim}; height:{dim}; border-radius:50%; background:{color};margin-top: 5px;"></span>'
     return HttpResponse(html)
 
 
@@ -131,6 +140,7 @@ class DeleteEndpointView(LoginRequiredMixin, DeleteView):
 ################### Resources ########################
 
 @login_required
+@require_GET
 def get_instantaneous_data(request, metric):
     source = request.GET.get("source", "server")
     if source == "server":
@@ -145,6 +155,7 @@ def get_instantaneous_data(request, metric):
         return HttpResponse("None")
 
 @login_required
+@require_GET
 def get_range_data(request, metric):
     user = request.user
     source = request.GET.get("source", "server")
@@ -157,13 +168,10 @@ def get_range_data(request, metric):
     start_date = date_filter['date_from']
     end_date = date_filter['date_to']
 
-    print(start_date)
-    print(end_date)
-
     try:
         data = api.get_range_data(active_entity, metric, start_date, end_date)
     except Exception as e:
-        return JsonResponse({"error": "Metric not found [e]"}, status=404)
+        return JsonResponse({"error": "Metric not found"}, status=404)
 
     return JsonResponse(data)
 
