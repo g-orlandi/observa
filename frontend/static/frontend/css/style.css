@@ -27,6 +27,6 @@ table th, table td {
 .dialog .dialog-content .dialog-header .title,
 .dialog .dialog-header .close
  {
-        background-color: #a62824 !important;
+        background-color: rgba(33,37,41,1);
         color: #fff;
 }

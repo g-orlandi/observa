@@ -101,38 +101,6 @@ def get_online_entities(request):
 
 ######################################################
 
-
-################### Servers list ###################
-
-class ListServersView(LoginRequiredMixin, ListView):
-    model = Server
-    template_name = "frontend/pages/servers.html"
-
-    def get_queryset(self):
-        user = self.request.user
-        return user.get_accessible_servers()
-
-class UpdateServerView(LoginRequiredMixin, UpdateView):
-    model = Server
-    fields = ['name', 'description', 'domain', 'port', 'logo']
-    success_url = reverse_lazy('frontend:servers')
-    template_name = "frontend/modals/update_server_modal.html"
-
-class DeleteServerView(LoginRequiredMixin, DeleteView):
-    model = Server
-    success_url = reverse_lazy('frontend:servers')
-    template_name = "frontend/modals/delete_server_confirmation_modal.html"
-
-class CreateServerView(LoginRequiredMixin, CreateView):
-    model = Server
-    success_url = reverse_lazy('frontend:servers')
-    fields = ['name', 'description', 'domain', 'port', 'logo', 'group']
-    template_name = "frontend/modals/create_server_modal.html"
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user  
-        return super().form_valid(form)
-
 @login_required
 @require_GET
 def get_entity_status(request):
@@ -169,27 +137,36 @@ class ListEndpointsView(LoginRequiredMixin, ListView):
         user = self.request.user
         return user.get_accessible_endpoints()
 
-
-class CreateEndpointView(LoginRequiredMixin, CreateView):
-    model = Endpoint
-    success_url = reverse_lazy('frontend:endpoints')
-    fields = ['name', 'description', 'url', 'check_keyword', 'logo', 'group']
-    template_name = "frontend/modals/create_endpoint_modal.html"
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-class UpdateEndpointView(LoginRequiredMixin, UpdateView):
-    model = Endpoint
-    fields = ['name', 'description', 'url', 'check_keyword', 'logo']
-    success_url = reverse_lazy('frontend:endpoints')
-    template_name = "frontend/modals/update_endpoint_modal.html"
-
 class DeleteEndpointView(LoginRequiredMixin, DeleteView):
     model = Endpoint
     success_url = reverse_lazy('frontend:endpoints')
-    template_name = "frontend/components/delete_endpoint_confirmation_modal.html"
+    template_name = "frontend/components/delete_endpoint_confirmation.html"
+
+    
+def edit_endpoint(request, endpoint_id=None):
+    import time
+    if settings.DEBUG:
+        time.sleep(1.0)
+    
+    if endpoint_id is None:
+        endpoint = None
+    else:
+        endpoint = get_object_or_404(Endpoint, id=endpoint_id)
+    
+    if request.method == 'POST':
+        form = EndpointForm(data=request.POST, instance=endpoint)
+        if form.is_valid():
+            form.save()
+    
+    else:
+        form = EndpointForm(instance=endpoint)
+
+    return render(request, 'frontend/components/endpoint_form.html', {
+        'form': form,
+        'action': '',
+    })
+
+
 
 ######################################################
 
@@ -293,57 +270,3 @@ def my_box(request):
     time.sleep(n)
     return HttpResponse(query)
 
-
-
-def form_submission_example(request):
-    if request.method == 'POST':
-        form = SimpleForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse("<h1>Great !</h1> Your form has been validated")
-    else:
-        form = SimpleForm()
-
-    template_name = "frontend/form_submission_example.html"
-    return render(request, template_name, {
-        'form': form,
-    })
-
-
-from django import forms
-
-class SimpleForm(forms.Form):
-    value = forms.IntegerField(required=True, label='value', help_text='Enter a value between 1 and 10')
-
-    def save(self):
-        return True
-
-    def clean_value(self):
-        value = self.cleaned_data['value']
-        if value is not None:
-            if value < 1 or value > 10:
-                raise forms.ValidationError('This value is not accepteble')
-        return value
-    
-def edit_endpoint(request, endpoint_id=None):
-    import time
-    if settings.DEBUG:
-        time.sleep(1.0)
-    
-    if endpoint_id is None:
-        endpoint = None
-    else:
-        endpoint = get_object_or_404(Endpoint, id=endpoint_id)
-    
-    if request.method == 'POST':
-        form = EndpointForm(data=request.POST, instance=endpoint)
-        if form.is_valid():
-            form.save()
-    
-    else:
-        form = EndpointForm(instance=endpoint)
-
-    return render(request, 'frontend/components/endpoint_form.html', {
-        'form': form,
-        'action': '',
-    })

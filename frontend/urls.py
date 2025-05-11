@@ -21,10 +21,8 @@ urlpatterns = [
 
     path('api/online-entities/', views.get_online_entities, name='get_online_entities'),
 
-    path('form_submission_example/', views.form_submission_example, name='form_example'),
 
-    path('endpoint/<uuid:endpoint_id>/change/', views.edit_endpoint, name="change_endpoint"),
-    path('endpoint/add/', views.edit_endpoint, name="add_endpoint"),
+
 ]
 
 page_urlpatterns = [
@@ -33,23 +31,17 @@ page_urlpatterns = [
     path('network/', views.network, name="network"),
     path('backup/', views.backup, name="backup"),
     path('report/', views.report, name="report"),
-    path('servers/', views.ListServersView.as_view(), name="servers"),
     path('endpoints/', views.ListEndpointsView.as_view(), name='endpoints'),
 ]
 
-servers_urlpattern = [
-    path('servers/<uuid:pk>/edit/', views.UpdateServerView.as_view(), name="server_edit"),
-    path('servers/create/', views.CreateServerView.as_view(), name="server_create"),
-    path('servers/<uuid:pk>/delete/', views.DeleteServerView.as_view(), name="server_delete"),
-]
-
 endpoints_urlpattern = [
-    path('endpoints/create/', views.CreateEndpointView.as_view(), name='endpoint_create'),
-    path('endpoints/update/<uuid:pk>/', views.UpdateEndpointView.as_view(), name='endpoint_update'),
-    path('endpoints/delete/<uuid:pk>/', views.DeleteEndpointView.as_view(), name='endpoint_delete'),
+    path('endpoint/<uuid:endpoint_id>/change/', views.edit_endpoint, name="change_endpoint"),
+    path('endpoint/add/', views.edit_endpoint, name="add_endpoint"),
+    # path('endpoints/create/', views.CreateEndpointView.as_view(), name='endpoint_create'),
+    # path('endpoints/update/<uuid:pk>/', views.UpdateEndpointView.as_view(), name='endpoint_update'),
+    path('endpoints/<uuid:pk>/delete/', views.DeleteEndpointView.as_view(), name='delete_endpoint'),
 ]
 
 urlpatterns += page_urlpatterns
-urlpatterns += servers_urlpattern
 urlpatterns += endpoints_urlpattern
 
