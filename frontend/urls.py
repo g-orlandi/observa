@@ -18,6 +18,9 @@ urlpatterns = [
     path('set-date-range/', views.set_date_range, name='set_date_range'),
 
     path('mybox/', views.my_box, name="my-box"),
+
+    path('api/online-entities/', views.get_online_entities, name='get_online_entities'),
+
 ]
 
 page_urlpatterns = [
@@ -40,7 +43,6 @@ endpoints_urlpattern = [
     path('endpoints/create/', views.CreateEndpointView.as_view(), name='endpoint_create'),
     path('endpoints/update/<uuid:pk>/', views.UpdateEndpointView.as_view(), name='endpoint_update'),
     path('endpoints/delete/<uuid:pk>/', views.DeleteEndpointView.as_view(), name='endpoint_delete'),
-
 ]
 
 urlpatterns += page_urlpatterns

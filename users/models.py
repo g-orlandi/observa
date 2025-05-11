@@ -74,9 +74,23 @@ class User(AbstractUser):
         return Server.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
         ).distinct()
+    
+    def get_accessible_servers_string(self):
+        servers = self.get_accessible_servers()
+        return "|".join(f"{s.domain}:{s.port}" for s in servers)
 
     def get_accessible_endpoints(self):
         # Remember: Django default is AND
         return Endpoint.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
         ).distinct()
+
+    def get_accessible_endpoints_string(self):
+        endpoints = self.get_accessible_servers()
+        return "|".join(f"{e.url}" for e in endpoints)
+
+    def get_all_entities(self):
+        servers = self.get_accessible_servers()
+        endpoints = self.get_accessible_endpoints()
+        combined = list(self.get_accessible_servers()) + list(self.get_accessible_endpoints())
+        return combined

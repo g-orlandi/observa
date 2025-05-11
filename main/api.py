@@ -28,12 +28,12 @@ def generic_call(entity, prom_query, qtype, range_suffix=None):
         assert prom_query.target_system == PromQuery.TargetSystem.PROMETHEUS, "Absent metric for Server obj."
         instance = f"{entity.domain}:{entity.port}"
         expression = prom_query.expression.replace("INSTANCE", instance)
-
-    if isinstance(entity, Endpoint):
+    elif isinstance(entity, Endpoint):
         assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
         url = entity.url
         expression = prom_query.expression.replace("MONITOR-URL", url)
-
+    else:
+        expression = prom_query
 
     if qtype == 0:
         final_request = settings.PROMETHEUS_URL + expression

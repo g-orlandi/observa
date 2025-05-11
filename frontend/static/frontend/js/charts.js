@@ -8,6 +8,8 @@ function drawChart(divId, data) {
   title = data.title;
 
   if(element._dygraphHandle !== undefined){
+    console.log('here222')
+
     // If we have already created an object, we destroy it to avoid memory leaks
     element._dygraphHandle.destroy();
   }

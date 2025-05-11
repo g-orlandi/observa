@@ -59,11 +59,65 @@ def backup(request):
     return render(request, 'frontend/pages/backup.html', {
     })
 
+################### Dashboard ###################
+
+def _get_up_down_count(query_code, values, placeholder):
+    if not values:
+        return 0, 0
+    try:
+        prom_q = PromQuery.objects.get(code=query_code)
+        values_expr = "|".join(values)
+        expression = prom_q.expression.replace(placeholder, values_expr)
+        up = int(api.generic_call(None, expression, 0))
+        down = len(values) - up
+        return up, down
+    except Exception as e:
+        return 0, len(values)
+    
+@login_required
+@require_GET
+def get_online_entities(request):
+    user = request.user
+
+    servers = user.get_accessible_servers()
+    server_instances = [f"{s.domain}:{s.port}" for s in servers]
+    servers_up, servers_down = _get_up_down_count("is-on", server_instances, "INSTANCE")
+
+    endpoints = user.get_accessible_endpoints()
+    endpoint_urls = [e.url for e in endpoints]
+    endpoints_up, endpoints_down = _get_up_down_count("monitor-status", endpoint_urls, "MONITOR-URL")
+
+    return JsonResponse({
+        'entities': {
+            'up': servers_up + endpoints_up,
+            'down': servers_down + endpoints_down,
+        },
+        'servers': {
+            'up': servers_up,
+            'down': servers_down,
+        },
+        'endpoints': {
+            'up': endpoints_up,
+            'down': endpoints_down,
+        },
+    })
+
+@login_required
+@require_GET
+def get_online_entities(request):
+    pass
+######################################################
+
+
 ################### Servers list ###################
 
 class ListServersView(LoginRequiredMixin, ListView):
     model = Server
     template_name = "frontend/pages/servers.html"
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.get_accessible_servers()
 
 class UpdateServerView(LoginRequiredMixin, UpdateView):
     model = Server
@@ -113,6 +167,11 @@ def get_entity_status(request):
 class ListEndpointsView(LoginRequiredMixin, ListView):
     model = Endpoint
     template_name = "frontend/pages/endpoints.html"
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.get_accessible_endpoints()
+
 
 class CreateEndpointView(LoginRequiredMixin, CreateView):
     model = Endpoint

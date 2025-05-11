@@ -4,9 +4,16 @@
         <img src="{% static 'frontend/images/observa_logo_white.png' %}" alt="Default" width="40" height="40" class="rounded-circle me-2">
         <span class="fs-4">{{SITE_TITLE}}</span>
     </a>
-    <hr>
+<hr style="border: none; height: 1px; background-color: white;">
+
 
     <ul class="nav nav-pills flex-column mb-auto">
+        <li>
+            <a href="{% url 'frontend:dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-speedometer2 me-2"></i> Summary
+            </a>
+        </li>
+        <hr style="border: none; height: 1px; background-color: white;">
         <li>
             <span class="text-uppercase small ps-2"><strong>Server</strong></span>
         </li>
