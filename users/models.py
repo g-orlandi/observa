@@ -86,11 +86,11 @@ class User(AbstractUser):
         ).distinct()
 
     def get_accessible_endpoints_string(self):
-        endpoints = self.get_accessible_servers()
+        endpoints = self.get_accessible_endpoints()
         return "|".join(f"{e.url}" for e in endpoints)
 
-    def get_all_entities(self):
-        servers = self.get_accessible_servers()
-        endpoints = self.get_accessible_endpoints()
-        combined = list(self.get_accessible_servers()) + list(self.get_accessible_endpoints())
-        return combined
+    # def get_all_entities(self):
+    #     servers = self.get_accessible_servers()
+    #     endpoints = self.get_accessible_endpoints()
+    #     combined = list(self.get_accessible_servers()) + list(self.get_accessible_endpoints())
+    #     return combined

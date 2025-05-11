@@ -17,24 +17,16 @@ from main import settings
 # url = "http://uptime.brainstorm.it:9090/api/v1/query?query="
 # server = "www1.brainstorm.it:9100"
 
-def generic_call(entity, prom_query, qtype, range_suffix=None):
+def generic_call(parameter, prom_query, qtype, range_suffix=None):
+
+    assert isinstance(parameter, str)
     assert qtype in [0,1]
     if qtype == 0:
         assert not range_suffix, "SINGLE query should not have a range suffix"
     elif qtype == 1:
         assert range_suffix, "RANGE query must have a range suffix"
 
-    if isinstance(entity, Server):
-        assert prom_query.target_system == PromQuery.TargetSystem.PROMETHEUS, "Absent metric for Server obj."
-        instance = f"{entity.domain}:{entity.port}"
-        expression = prom_query.expression.replace("INSTANCE", instance)
-    elif isinstance(entity, Endpoint):
-        assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
-        url = entity.url
-        expression = prom_query.expression.replace("MONITOR-URL", url)
-    else:
-        expression = prom_query
-
+    expression = prom_query.expression.replace("PLACEHOLDER", parameter)
     if qtype == 0:
         final_request = settings.PROMETHEUS_URL + expression
     else:
@@ -46,6 +38,7 @@ def generic_call(entity, prom_query, qtype, range_suffix=None):
     try:
         response = requests.get(final_request, auth=auth)
         response.raise_for_status()
+        import pdb;pdb.set_trace()
         response = response.json().get('data', {}).get('result', [])[0]
         if qtype:
             return response['values']
@@ -57,15 +50,6 @@ def generic_call(entity, prom_query, qtype, range_suffix=None):
         print(f"Error in Prometheus request: {e}")
         print("Query:", final_request)
         return None
-    
-def get_instantaneous_data(entity, metric):
-    prom_query = PromQuery.objects.get(code=metric)
-
-    qtype = 0
-    data = generic_call(entity, prom_query, qtype)
-
-    return data
-
 
 def get_range_data(entity, metric, start_date, end_date):
     prom_query = PromQuery.objects.get(code=metric)

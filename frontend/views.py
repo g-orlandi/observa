@@ -61,31 +61,27 @@ def backup(request):
 
 ################### Dashboard ###################
 
-def _get_up_down_count(query_code, values, placeholder):
-    if not values:
+def _get_up_down_count(query_code, str_entities, count):
+    if not str_entities:
         return 0, 0
     try:
         prom_q = PromQuery.objects.get(code=query_code)
-        values_expr = "|".join(values)
-        expression = prom_q.expression.replace(placeholder, values_expr)
-        up = int(api.generic_call(None, expression, 0))
-        down = len(values) - up
+        up = int(api.generic_call(str_entities, prom_q, 0))
+        down = count - up
         return up, down
     except Exception as e:
-        return 0, len(values)
+        return 0, count
     
 @login_required
 @require_GET
 def get_online_entities(request):
     user = request.user
 
-    servers = user.get_accessible_servers()
-    server_instances = [f"{s.domain}:{s.port}" for s in servers]
-    servers_up, servers_down = _get_up_down_count("is-on", server_instances, "INSTANCE")
+    servers = user.get_accessible_servers_string()
+    servers_up, servers_down = _get_up_down_count("is-on", servers, len(user.get_accessible_servers()))
 
-    endpoints = user.get_accessible_endpoints()
-    endpoint_urls = [e.url for e in endpoints]
-    endpoints_up, endpoints_down = _get_up_down_count("monitor-status", endpoint_urls, "MONITOR-URL")
+    endpoints = user.get_accessible_endpoints_string()
+    endpoints_up, endpoints_down = _get_up_down_count("monitor-status", endpoints, len(user.get_accessible_endpoints()))
 
     return JsonResponse({
         'entities': {
@@ -102,10 +98,7 @@ def get_online_entities(request):
         },
     })
 
-@login_required
-@require_GET
-def get_online_entities(request):
-    pass
+
 ######################################################
 
 
@@ -143,18 +136,22 @@ class CreateServerView(LoginRequiredMixin, CreateView):
 @login_required
 @require_GET
 def get_entity_status(request):
-
+    qtype = 0
     source = request.GET.get("source", "server")
     if source == "server":
-        active_entity = request.user.active_server
+        active_server = request.user.active_server
+        parameter = f"{active_server.domain}:{active_server.port}"
         metric = 'is-on'
     elif source == "endpoint":
-        active_entity = request.user.active_endpoint
+        active_endpoint = request.user.active_endpoint
+        parameter = active_endpoint.url
         metric = 'monitor-status'
+    
+    prom_query = PromQuery.objects.get(code=metric)
 
     dim = "22px"
     
-    response = api.get_instantaneous_data(active_entity, metric)
+    response = api.generic_call(parameter, prom_query, qtype)
     color = "green" if int(response) == 1 else "red"
     html = f'<span style="display:inline-block; width:{dim}; height:{dim}; border-radius:50%; background:{color};margin-top: 5px;"></span>'
     return HttpResponse(html)
@@ -201,14 +198,22 @@ class DeleteEndpointView(LoginRequiredMixin, DeleteView):
 @login_required
 @require_GET
 def get_instantaneous_data(request, metric):
+    prom_query = PromQuery.objects.get(code=metric)
+
+    qtype = 0
+
     source = request.GET.get("source", "server")
     if source == "server":
-        active_entity = request.user.active_server
+        active_server = request.user.active_server
+        assert prom_query.target_system == PromQuery.TargetSystem.PROMETHEUS, "Absent metric for Server obj."
+        parameter = f"{active_server.domain}:{active_server.port}"
     elif source == "endpoint":
-        active_entity = request.user.active_endpoint
+        active_endpoint = request.user.active_endpoint
+        assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
+        parameter = active_endpoint.url
     
     try:
-        data = api.get_instantaneous_data(active_entity, metric)
+        data = api.generic_call(parameter, prom_query, qtype)
         return HttpResponse(data)
     except Exception as e:
         return HttpResponse("None")
@@ -216,23 +221,39 @@ def get_instantaneous_data(request, metric):
 @login_required
 @require_GET
 def get_range_data(request, metric):
+    prom_query = PromQuery.objects.get(code=metric)
+    qtype = 1
     user = request.user
-    source = request.GET.get("source", "server")
-    if source == "server":
-        active_entity = request.user.active_server
-    elif source == "endpoint":
-        active_entity = request.user.active_endpoint
 
+    source = request.GET.get("source", "server")
+    all = request.GET.get("all", "0")
+    all = int(all)
+    if source == "server":
+        assert prom_query.target_system == PromQuery.TargetSystem.PROMETHEUS, "Absent metric for Server obj."
+        if all:
+            parameter = user.get_accessible_servers_string()
+        else:
+            active_entity = request.user.active_server
+            parameter = f"{active_entity.domain}:{active_entity.port}"
+    elif source == "endpoint":
+        assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
+        if all:
+            parameter = user.get_accessible_endpoints_string()
+        else:
+            active_entity = request.user.active_endpoint
+            parameter = active_entity.url
+
+    
     date_filter = user.get_active_date_filters()
-    start_date = date_filter['date_from']
-    end_date = date_filter['date_to']
+    range_suffix = api._generate_range_suffix(date_filter['date_from'], date_filter['date_to'])
 
     try:
-        data = api.get_range_data(active_entity, metric, start_date, end_date)
+        data = api.generic_call(parameter, prom_query, qtype, range_suffix)
+        labels = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
+        values = [float(v[1]) for v in data]
+        return JsonResponse({"labels": labels, "values": values, "title": prom_query.title})
     except Exception as e:
         return JsonResponse({"error": "Metric not found"}, status=404)
-
-    return JsonResponse(data)
 
 @login_required
 @require_POST
