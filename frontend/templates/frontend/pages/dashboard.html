@@ -42,16 +42,24 @@
 
 {% block aggregated_values %}
   <br>
-  <div class="row mt-3">
-    <div class="col-md-12">
-        <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
-          <h6 class="text-muted">Uptime trend</h6>
-          <div class="chart" id="uptimeChart" data-metric="monitor-status" data-color="#6610f2" style="width: 100%; height: 240px;">
-          </div>
+<div class="row mt-3">
+  <div class="col-md-12">
+    <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-muted mb-0">Uptime trend</h6>
+        <div>
+          <select id="seriesSelector" class="form-select form-select-sm d-inline-block w-auto">
+            <option value="both">All</option>
+            <option value="first">Endpoints</option>
+            <option value="second">Servers</option>
+          </select>
         </div>
-    
-      </div> 
+      </div>
+      <div class="chart" id="uptimeChart" data-metric="monitor-status" data-color="#6610f2" style="width: 100%; height: 240px;"></div>
+    </div>
   </div>
+</div>
+
 </div>
 
 {% endblock aggregated_values %}

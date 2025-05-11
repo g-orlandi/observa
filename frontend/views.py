@@ -220,7 +220,7 @@ def get_instantaneous_data(request, metric):
 
 @login_required
 @require_GET
-def get_range_data(request, metric):
+def get_range_data(request, metric, step=900):
     prom_query = PromQuery.objects.get(code=metric)
     qtype = 1
     user = request.user
@@ -245,7 +245,7 @@ def get_range_data(request, metric):
 
     
     date_filter = user.get_active_date_filters()
-    range_suffix = api._generate_range_suffix(date_filter['date_from'], date_filter['date_to'])
+    range_suffix = api._generate_range_suffix(date_filter['date_from'], date_filter['date_to'], step)
 
     try:
         data = api.generic_call(parameter, prom_query, qtype, range_suffix)
