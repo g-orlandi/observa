@@ -15,6 +15,7 @@ def init_db_query():
                 ("Disk used (GB)", "disk-used", 'round((node_filesystem_size_bytes{instance="PLACEHOLDER",fstype=~"ext4|xfs"} - node_filesystem_free_bytes{instance="PLACEHOLDER",fstype=~"ext4|xfs"}) / 1073741824, 1/100)'),     
                 ("Disk total (GB)", "disk-tot", 'round(node_filesystem_size_bytes{instance="PLACEHOLDER",fstype=~"ext4|xfs"} / 1073741824, 1/100)'),        
                 ("Is on", "is-on", 'up{instance=~"PLACEHOLDER", job="node"}'),        
+                ("Is on all", "is-on-all", 'sum(up{instance=~"PLACEHOLDER", job="node"})'),        
                 ("Uptime days", "uptime-days", 'round((time() - node_boot_time_seconds{instance=~"PLACEHOLDER"}) / 86400, 1/100)'),        
                 ("Http request", "http-req", 'round(increase(promhttp_metric_handler_requests_total{instance="PLACEHOLDER"}[5m]), 1/100)'),        
             ]
@@ -33,6 +34,7 @@ def init_db_query():
             target_system = "uptime"
             queries = [
                 ("Monitor status", "monitor-status", 'monitor_status{monitor_url=~"PLACEHOLDER"}'),
+                ("Monitor status all", "monitor-status-all", 'sum(monitor_status{monitor_url=~"PLACEHOLDER"})'),
                 ("Response time", "response-time", 'avg_over_time(monitor_response_time{monitor_url="PLACEHOLDER"}[5m])'),
                 ("Certificate days remaining", "cert-days-rem", 'monitor_cert_days_remaining{monitor_url="PLACEHOLDER"}'),
                 ("Uptime percentage", "uptime-perc", 'round(avg_over_time(monitor_status{monitor_url="PLACEHOLDER"}[30d])*100, 1/100)')

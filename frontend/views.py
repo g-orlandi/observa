@@ -78,10 +78,10 @@ def get_online_entities(request):
     user = request.user
 
     servers = user.get_accessible_servers_string()
-    servers_up, servers_down = _get_up_down_count("is-on", servers, len(user.get_accessible_servers()))
+    servers_up, servers_down = _get_up_down_count("is-on-all", servers, len(user.get_accessible_servers()))
 
     endpoints = user.get_accessible_endpoints_string()
-    endpoints_up, endpoints_down = _get_up_down_count("monitor-status", endpoints, len(user.get_accessible_endpoints()))
+    endpoints_up, endpoints_down = _get_up_down_count("monitor-status-all", endpoints, len(user.get_accessible_endpoints()))
 
     return JsonResponse({
         'entities': {

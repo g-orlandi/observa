@@ -38,7 +38,6 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None):
     try:
         response = requests.get(final_request, auth=auth)
         response.raise_for_status()
-        import pdb;pdb.set_trace()
         response = response.json().get('data', {}).get('result', [])[0]
         if qtype:
             return response['values']

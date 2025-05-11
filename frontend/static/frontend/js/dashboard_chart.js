@@ -53,8 +53,8 @@ function fetchAndRender(divId) {
   const element = document.getElementById(divId);
 
   Promise.all([
-    fetch(`/api/range-data/monitor-status?source=endpoint&all=1`).then(res => res.json()),
-    fetch(`/api/range-data/is-on?source=server&all=1`).then(res => res.json())
+    fetch(`/api/range-data/monitor-status-all?source=endpoint&all=1`).then(res => res.json()),
+    fetch(`/api/range-data/is-on-all?source=server&all=1`).then(res => res.json())
   ])
   .then(([endpointData, serverData]) => {
     console.log("Dati ricevuti per endpoint:", endpointData);
