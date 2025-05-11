@@ -5,10 +5,15 @@
 <h2>Endpoints: view, create, edit and delete</h2>
 
 <nav class="navbar navbar-light bg-light" style="justify-content: right; align-items: right;">
+    {% if can_add_endpoint %}
     <a href="{% url 'frontend:add_endpoint' %}" onclick="onOpenEditEndpoint(event)" data-title="Add an Endpoint" class="btn btn-success">
         Add
     </a>
-
+    {% else %}
+    <button class="btn btn-success" disabled title="Upgrade to PRO in order to add more Endpoints.">
+        Add
+    </button>
+    {% endif %}
 </nav>
 
 <br>

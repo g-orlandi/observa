@@ -1,5 +1,4 @@
 import requests
-import re
 from main import settings
 
 from requests.auth import HTTPBasicAuth
@@ -11,7 +10,7 @@ import requests
 import time
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
-from backend.models import PromQuery, Server, Endpoint
+from backend.models import PromQuery
 from main import settings
 
 # url = "http://uptime.brainstorm.it:9090/api/v1/query?query="

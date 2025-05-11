@@ -33,7 +33,7 @@ class MonitoredEntity(models.Model):
             raise ValidationError("An entity must be linked to at least a user or a group.")
         
     def save(self, *args, **kwargs):
-        self.full_clean()  # chiama clean() + validatori dei campi
+        self.full_clean()
         super().save(*args, **kwargs)
 
 

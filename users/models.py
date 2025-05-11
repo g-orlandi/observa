@@ -1,10 +1,12 @@
 import uuid
+from datetime import datetime, timedelta, date
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import datetime, timedelta, date
-from backend.models import Server, Endpoint
 from django.db.models import Q
+
+from backend.models import Server, Endpoint
+from main import settings
 
 # Create your models here.
 class User(AbstractUser):
@@ -88,6 +90,13 @@ class User(AbstractUser):
     def get_accessible_endpoints_string(self):
         endpoints = self.get_accessible_endpoints()
         return "|".join(f"{e.url}" for e in endpoints)
+
+    def out_of_endpoints(self):
+        if self.plan == User.Plan.FREE:
+            n = Endpoint.objects.filter(user=self).count()
+            if n >= settings.MAX_ENDPOINTS_FREE:
+                return True
+        return False
 
     # def get_all_entities(self):
     #     servers = self.get_accessible_servers()

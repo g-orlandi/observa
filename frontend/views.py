@@ -1,31 +1,21 @@
-from datetime import timedelta
-from django.utils import timezone
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.utils.safestring import mark_safe
-import json
+# Librerie standard Python
+from datetime import datetime
+
+# Moduli Django
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, DeleteView, CreateView
+from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from users.forms import CustomUserCreationForm
-from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST, require_GET
-from django.shortcuts import redirect, get_object_or_404
-from django.shortcuts import render
-from django.utils.dateparse import parse_date
-from django.utils import timezone
-from datetime import timedelta, datetime
-from main import api
-from django.http import JsonResponse, HttpResponseBadRequest
 
+# Moduli del progetto
+from backend.models import PromQuery, Endpoint
 from .forms import EndpointForm
-from backend.models import Server, PromQuery, Endpoint
-import requests
-from main import settings
-from requests.auth import HTTPBasicAuth
-import re
+from main import api, settings
+
 
 ################### Main pages ###################
 
@@ -99,7 +89,7 @@ def get_online_entities(request):
     })
 
 
-######################################################
+#################### Servers #######################
 
 @login_required
 @require_GET
@@ -127,7 +117,7 @@ def get_entity_status(request):
 
 ######################################################
 
-################### Endpoints list ###################
+################### Endpoints ###################
 
 class ListEndpointsView(LoginRequiredMixin, ListView):
     model = Endpoint
@@ -137,6 +127,11 @@ class ListEndpointsView(LoginRequiredMixin, ListView):
         user = self.request.user
         return user.get_accessible_endpoints()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['can_add_endpoint'] = not self.request.user.out_of_endpoints()
+        return context
+
 class DeleteEndpointView(LoginRequiredMixin, DeleteView):
     model = Endpoint
     success_url = reverse_lazy('frontend:endpoints')
@@ -144,21 +139,23 @@ class DeleteEndpointView(LoginRequiredMixin, DeleteView):
 
     
 def edit_endpoint(request, endpoint_id=None):
-    import time
-    if settings.DEBUG:
-        time.sleep(1.0)
-    
+
     if endpoint_id is None:
         endpoint = None
+        if request.user.out_of_endpoints():
+            return HttpResponseForbidden("You cannot add other endpoint. Upgrade to PRO to unlock unlimited number of endpoints.")
     else:
         endpoint = get_object_or_404(Endpoint, id=endpoint_id)
     
+    
     if request.method == 'POST':
-        form = EndpointForm(data=request.POST, instance=endpoint)
+        post_data = request.POST.copy()
+        post_data['user'] = request.user.pk
+        form = EndpointForm(data=post_data, files=request.FILES, instance=endpoint,)
         if form.is_valid():
             form.save()
-    
     else:
+
         form = EndpointForm(instance=endpoint)
 
     return render(request, 'frontend/components/endpoint_form.html', {
