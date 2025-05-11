@@ -25,9 +25,7 @@
             <th scope="col">Name</th>
             <th scope="col">Description</th>
             <th scope="col">URL</th>
-            {% comment %}
-            <th scope="col"> Server status</th>
-            {% endcomment %}
+            <th scope="col">Endpoint status</th>
             <th scope="col"></th>
         </tr>
     </thead>
@@ -46,6 +44,10 @@
             </td>
             <td>{{ p.description }}</td>
             <td>{{ p.url }}</td>
+            <td hx-get="{% url 'frontend:get_entity_status' p.id %}?source=endpoint"  hx-trigger="load, every 60s" hx-target="this" hx-swap="innerHTML">
+                Loading...
+            </td>
+
             <td class="pe-4" style="width: 1%; white-space: nowrap;">
                 <a href="{% url 'frontend:delete_endpoint' p.id %}" onclick="onOpenDeleteEndpoint(event)" data-title="Delete an Endpoint" class="btn btn-danger">
                     Delete

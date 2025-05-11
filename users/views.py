@@ -24,7 +24,7 @@ class UserCreateView(CreateView):
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     template_name = "users/edit.html"
-    success_url = reverse_lazy('frontend:dashboard')
+    success_url = reverse_lazy('users:edit_profile')
     fields = ['username', 'email', 'profile_picture']
 
     def get_object(self):

@@ -1,5 +1,6 @@
 # Librerie standard Python
 from datetime import datetime
+from uuid import UUID
 
 # Moduli Django
 from django.shortcuts import render, redirect, get_object_or_404
@@ -12,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_POST, require_GET
 
 # Moduli del progetto
-from backend.models import PromQuery, Endpoint
+from backend.models import PromQuery, Endpoint, Server
 from .forms import EndpointForm
 from main import api, settings
 
@@ -93,15 +94,21 @@ def get_online_entities(request):
 
 @login_required
 @require_GET
-def get_entity_status(request):
+def get_entity_status(request, entity_id=None):
     qtype = 0
     source = request.GET.get("source", "server")
     if source == "server":
         active_server = request.user.active_server
+        if entity_id:
+            entity_id = UUID(entity_id)
+            active_server = Server.objects.get(id=entity_id)
         parameter = f"{active_server.domain}:{active_server.port}"
         metric = 'is-on'
     elif source == "endpoint":
         active_endpoint = request.user.active_endpoint
+        if entity_id:
+            entity_id = UUID(entity_id)
+            active_endpoint = Endpoint.objects.get(id=entity_id)
         parameter = active_endpoint.url
         metric = 'monitor-status'
     

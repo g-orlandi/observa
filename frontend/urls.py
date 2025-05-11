@@ -7,7 +7,7 @@ from . import views
 app_name = 'frontend'
 
 urlpatterns = [
-    path("api/inst-data/entity-status/", views.get_entity_status, name="get_entity_status"),
+        re_path(r"^api/inst-data/entity-status(?:/(?P<entity_id>[0-9a-fA-F-]{36}))?/$", views.get_entity_status, name="get_entity_status"),
     path("api/inst-data/<str:metric>/", views.get_instantaneous_data, name="get_instantaneous_data"),
     path("api/range-data/<str:metric>/", views.get_range_data, name="get_range_data"),
     path('api/online-entities/', views.get_online_entities, name='get_online_entities'),
