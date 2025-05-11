@@ -20,7 +20,7 @@ from datetime import timedelta, datetime
 from main import api
 from django.http import JsonResponse, HttpResponseBadRequest
 
-
+from .forms import EndpointForm
 from backend.models import Server, PromQuery, Endpoint
 import requests
 from main import settings
@@ -292,3 +292,58 @@ def my_box(request):
     n = random.randint(0,3)
     time.sleep(n)
     return HttpResponse(query)
+
+
+
+def form_submission_example(request):
+    if request.method == 'POST':
+        form = SimpleForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse("<h1>Great !</h1> Your form has been validated")
+    else:
+        form = SimpleForm()
+
+    template_name = "frontend/form_submission_example.html"
+    return render(request, template_name, {
+        'form': form,
+    })
+
+
+from django import forms
+
+class SimpleForm(forms.Form):
+    value = forms.IntegerField(required=True, label='value', help_text='Enter a value between 1 and 10')
+
+    def save(self):
+        return True
+
+    def clean_value(self):
+        value = self.cleaned_data['value']
+        if value is not None:
+            if value < 1 or value > 10:
+                raise forms.ValidationError('This value is not accepteble')
+        return value
+    
+def edit_endpoint(request, endpoint_id=None):
+    import time
+    if settings.DEBUG:
+        time.sleep(1.0)
+    
+    if endpoint_id is None:
+        endpoint = None
+    else:
+        endpoint = get_object_or_404(Endpoint, id=endpoint_id)
+    
+    if request.method == 'POST':
+        form = EndpointForm(data=request.POST, instance=endpoint)
+        if form.is_valid():
+            form.save()
+    
+    else:
+        form = EndpointForm(instance=endpoint)
+
+    return render(request, 'frontend/components/endpoint_form.html', {
+        'form': form,
+        'action': '',
+    })

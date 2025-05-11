@@ -1,0 +1,9 @@
+<form method="POST" action="{{action}}" class="form-container" novalidate>
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+    {% csrf_token %}
+    {{form}}
+</form>

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'main',
     'frontend',
     'backend',
+    'htmx_forms',
 ]
 
 MIDDLEWARE = [

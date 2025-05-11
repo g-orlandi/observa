@@ -5,3 +5,4 @@ pillow==11.2.1
 requests==2.32.3
 django-crispy-forms==2.4
 crispy-bootstrap5==2025.4
+django-htmx-forms==0.1.3

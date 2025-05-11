@@ -15,7 +15,13 @@
             style="margin-right:20px;">
             <strong>Add endpoint</strong>
         </button>
-    </form>    
+    </form>
+    
+                <a href="{% url 'frontend:add_endpoint' %}"
+                    onclick="onOpenDialogClick(event)"    
+                >
+                    Add
+                </a>
 </nav>
 <br>
 <table class="table table-striped">
@@ -38,7 +44,12 @@
 
             </td>
             <td>
-                <button hx-get="{% url 'frontend:endpoint_update' pk=p.id %}" hx-target="#my-modals" hx-trigger="click" data-bs-toggle="modal" data-bs-target="#my-modals" class="btn primary"> <strong>{{ p.name }} </strong></button>
+                <a href="{% url 'frontend:change_endpoint' p.id %}"
+                    onclick="onOpenDialogClick(event)"    
+                >
+                    {{p.name}}
+                </a>
+                {% comment %} <button hx-get="{% url 'frontend:' pk=p.id %}" hx-target="#my-modals" hx-trigger="click" data-bs-toggle="modal" data-bs-target="#my-modals" class="btn primary"> <strong>{{ p.name }} </strong></button> {% endcomment %}
             </td>
             <td>{{ p.description }}</td>
             <td>{{ p.url}}</td>
@@ -67,3 +78,29 @@
 </table>
 <div id="modal-container"></div>
 {% endblock content %}
+
+{% block extrajs %}
+<script>
+
+function onOpenDialogClick(event){
+    let dialog1 = new HtmxForms.Dialog({
+    dialog_selector: '#dialog_generic',
+    html: 'Loading in progress...',
+    width: '600px',
+    min_height: '200px',
+    title: '<i class="fa fa-calculator"></i> Select an object ...',
+    enable_trace: true,
+    callback: function(event_name, dialog, params) {
+        if(event_name == 'submitted'){
+            HtmxForms.reload_page(show_layer=false);
+        }
+    },
+});
+    dialog1.open(event);
+
+}
+
+
+</script>
+{% endblock extrajs %}
+

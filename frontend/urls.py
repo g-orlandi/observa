@@ -21,6 +21,10 @@ urlpatterns = [
 
     path('api/online-entities/', views.get_online_entities, name='get_online_entities'),
 
+    path('form_submission_example/', views.form_submission_example, name='form_example'),
+
+    path('endpoint/<uuid:endpoint_id>/change/', views.edit_endpoint, name="change_endpoint"),
+    path('endpoint/add/', views.edit_endpoint, name="add_endpoint"),
 ]
 
 page_urlpatterns = [

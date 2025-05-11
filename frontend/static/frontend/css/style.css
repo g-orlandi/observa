@@ -16,3 +16,17 @@ table th, table td {
     height: 1px; 
     background-color: white;
 }
+
+/* dialog customization for django-htmx-forms */
+.dialog {
+    background-color: rgba(0,0,0,0.3); /* backdrop */
+    border: none;
+}
+.dialog .dialog-content .dialog-header,
+.dialog .dialog-content .dialog-footer,
+.dialog .dialog-content .dialog-header .title,
+.dialog .dialog-header .close
+ {
+        background-color: #a62824 !important;
+        color: #fff;
+}

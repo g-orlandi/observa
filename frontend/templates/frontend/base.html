@@ -7,9 +7,11 @@
         <title>{% block title %} {{SITE_TITLE}} {% endblock title %}</title>
         
         <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
-        <link href="{% static 'frontend/css/style.css' %}" rel="stylesheet">
         <link href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}" rel="stylesheet">
         <link href="{% static 'dygraphs/dist/dygraph.css' %}" rel="stylesheet">
+        <link rel='stylesheet' href="{% static 'htmx_forms.css' %}">
+
+        <link href="{% static 'frontend/css/style.css' %}" rel="stylesheet">
 
         {% comment %} <meta name="csrf-token" content="{{ csrf_token }}"> {% endcomment %}
 
@@ -39,11 +41,14 @@
                 </div>
             </div>
         </div>
+        {% include 'htmx_forms/dialogs.html' %}
+        {% include 'htmx_forms/overlay.html' %}
+
         <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'htmx.org/dist/htmx.js' %}"></script>
         <script type="text/javascript" src="{% static 'dygraphs/dist/dygraph.js' %}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{% static 'htmx_forms.js' %}"></script>
+
         {% block extrajs %}
         {% endblock extrajs %}
     </body>
