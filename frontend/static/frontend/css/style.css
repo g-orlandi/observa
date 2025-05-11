@@ -10,3 +10,9 @@ table th, table td {
     text-align: center;
     vertical-align: middle;
 }
+
+.horizontalLine {
+    border: none; 
+    height: 1px; 
+    background-color: white;
+}

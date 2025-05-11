@@ -5,10 +5,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %} {{SITE_TITLE}} {% endblock title %}</title>
+        
         <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
         <link href="{% static 'frontend/css/style.css' %}" rel="stylesheet">
         <link href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}" rel="stylesheet">
-        <link rel="stylesheet" href="{% static 'dygraphs/dist/dygraph.css' %}" />
+        <link href="{% static 'dygraphs/dist/dygraph.css' %}" rel="stylesheet">
 
         {% comment %} <meta name="csrf-token" content="{{ csrf_token }}"> {% endcomment %}
 
