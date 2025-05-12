@@ -16,18 +16,21 @@ from django.views.decorators.http import require_POST, require_GET
 from backend.models import PromQuery, Endpoint, Server
 from .forms import EndpointForm
 from main import api, settings
+from .decorators import require_pro_user
 
 
 ################### Main pages ###################
 
 @login_required
 @require_GET
+@require_pro_user
 def dashboard(request, path):
     return render(request, 'frontend/pages/dashboard.html', {
     })
 
 @login_required
 @require_GET
+@require_pro_user
 def resources(request):
     return render(request, 'frontend/pages/resources.html', {
     })
@@ -40,12 +43,14 @@ def network(request):
 
 @login_required
 @require_GET
+@require_pro_user
 def report(request):
     return render(request, 'frontend/pages/report.html', {
     })
 
 @login_required
 @require_GET
+@require_pro_user
 def backup(request):
     return render(request, 'frontend/pages/backup.html', {
     })

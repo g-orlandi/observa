@@ -98,6 +98,8 @@ class User(AbstractUser):
                 return True
         return False
 
+    def is_pro(self):
+        return self.plan == User.Plan.PRO
     # def get_all_entities(self):
     #     servers = self.get_accessible_servers()
     #     endpoints = self.get_accessible_endpoints()

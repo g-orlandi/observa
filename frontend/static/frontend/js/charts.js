@@ -8,7 +8,6 @@ function drawChart(divId, data) {
   title = data.title;
 
   if(element._dygraphHandle !== undefined){
-    console.log('here222')
 
     // If we have already created an object, we destroy it to avoid memory leaks
     element._dygraphHandle.destroy();
@@ -37,12 +36,21 @@ function fetchAndRender(divId) {
   else if(pathname === '/resources/'){
     source = 'server';
   }
-  fetch(`/api/range-data/${metric}?source=${source}`)
-    .then(res => res.json())
-    .then(data => {   
-      drawChart(divId, data);
-    })
-    .catch(err => console.error(`Errore nel caricamento dati per ${metric}:`, err));
+fetch(`/api/range-data/${metric}?source=${source}`)
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} – ${res.statusText}`);
+    }
+    return res.json();
+  })
+  .then(data => {
+    drawChart(divId, data);
+  })
+  .catch(err => {
+    console.error(`Errore nel caricamento dati per ${metric}:`, err);
+    alert(err.message);
+  });
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
