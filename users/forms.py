@@ -11,9 +11,3 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "email")  # aggiungi i campi che usi
-
-    def save(self, commit=True):
-        user = super().save(commit)
-        base_group = Group.objects.get(name="Base")
-        user.groups.add(base_group)
-        return user

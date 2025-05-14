@@ -31,4 +31,8 @@ table th, table td {
         color: #fff;
 }
 
-
+.btn-close {
+    --bs-btn-close-bg: none !important;
+    --bs-btn-close-opacity: 1.0 !important;
+    box-sizing: border-box !important;
+}

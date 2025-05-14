@@ -48,7 +48,7 @@ fetch(`/api/range-data/${metric}?source=${source}`)
   })
   .catch(err => {
     console.error(`Errore nel caricamento dati per ${metric}:`, err);
-    alert(err.message);
+    // alert(err.message);
   });
 
 }

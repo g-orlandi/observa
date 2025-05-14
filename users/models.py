@@ -98,6 +98,7 @@ class User(AbstractUser):
                 return True
         return False
 
+    @property
     def is_pro(self):
         return self.plan == User.Plan.PRO
     # def get_all_entities(self):

@@ -20,7 +20,8 @@ urlpatterns = [
 ]
 
 page_urlpatterns = [
-    re_path(r'^(dashboard/)?$', views.dashboard, name="dashboard"),
+    path('', views.index, name="index"),
+    path('dashboard/', views.dashboard, name="dashboard"),
     path('resources/', views.resources, name="resources"),
     path('network/', views.network, name="network"),
     path('backup/', views.backup, name="backup"),
