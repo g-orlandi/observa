@@ -39,13 +39,49 @@ def dashboard(request):
 @require_GET
 @require_pro_user
 def resources(request):
-    return render(request, 'frontend/pages/resources.html', {
+    widgets = [
+        {"title": "Operative System", "metric": "os", "url_name": "frontend:get_instantaneous_data", "icon": "bi-gear-fill"},
+        {"title": "Server Status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half"},
+        {"title": "Uptime since last boot", "metric": "uptime-days", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history", "unit": "days"},
+        {"title": "Http request (5m)", "metric": "http-req", "url_name": "frontend:get_instantaneous_data", "icon": "bi-activity"},
+        {"title": "CPU Usage", "metric": "cpu-usage", "url_name": "frontend:get_instantaneous_data", "icon": "bi-cpu", "unit": "%", "col": 3},
+        {"title": "Memory Used", "metric": "mem-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-memory", "col": 3},
+        {"title": "Disk Used", "metric": "disk-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-hdd-fill", "col": 3},
+    ]
+    charts = [
+        {"id": "cpuChart", "title": "CPU Usage Trend", "metric": "cpu-usage", "color": "#0d6efd"},
+        {"id": "memoryChart", "title": "Memory Usage Trend", "metric": "mem-used", "color": "#6610f2"},
+        {"id": "diskChart", "title": "Disk Trend", "metric": "disk-used", "color": "#a110a2"},
+        {"id": "requestChart", "title": "Http request Trend", "metric": "http-req", "color": "#c110a2"},
+    ]
+
+    return render(request, "frontend/info.html", {
+        "widgets": widgets,
+        "charts": charts,
+        "select": {"entity":"server",},
+        "graph_include": "frontend/components/graphs.html"
     })
+
 
 @login_required
 @require_GET
 def network(request):
-    return render(request, 'frontend/pages/network.html', {
+    widgets = [
+        {"title": "Endpoint Status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half", "source": "endpoint"},
+        {"title": "Latency", "metric": "response-time", "url_name": "frontend:get_instantaneous_data", "icon": "bi-activity", "source": "endpoint", "unit": "ms"},
+        {"title": "Days until cert. expiration", "metric": "cert-days-rem", "url_name": "frontend:get_instantaneous_data", "icon": "bi-lock-fill", "source": "endpoint"},
+        {"title": "Uptime (last 30d)", "metric": "uptime-perc", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history", "source": "endpoint", "unit": "%"},
+    ]
+
+    charts = [
+        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "entity": "endpoint", "color": "#0d6efd"},
+        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2"},
+    ]
+
+    return render(request, "frontend/info.html", {
+        "widgets": widgets,
+        "charts": charts,
+        "graph_include": "frontend/components/graphs.html"
     })
 
 @login_required
