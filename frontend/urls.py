@@ -7,16 +7,11 @@ from . import views
 app_name = 'frontend'
 
 urlpatterns = [
-        re_path(r"^api/inst-data/entity-status(?:/(?P<entity_id>[0-9a-fA-F-]{36}))?/$", views.get_entity_status, name="get_entity_status"),
+    re_path(r"^api/inst-data/entity-status(?:/(?P<entity_id>[0-9a-fA-F-]{36}))?/$", views.get_entity_status, name="get_entity_status"),
     path("api/inst-data/<str:metric>/", views.get_instantaneous_data, name="get_instantaneous_data"),
     path("api/range-data/<str:metric>/", views.get_range_data, name="get_range_data"),
     path('api/online-entities/', views.get_online_entities, name='get_online_entities'),
-    
-    path('set-active-server/', views.set_active_server, name='set_active_server'),
-    path('set-active-endpoint/', views.set_active_endpoint, name='set_active_endpoint'),
-    path('set-date-range/', views.set_date_range, name='set_date_range'),
 
-    path('mybox/', views.my_box, name="my-box"),
 ]
 
 page_urlpatterns = [

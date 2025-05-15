@@ -1,11 +1,12 @@
 <!-- Selezione endpoint -->
-<form method="post" action="{% url 'frontend:set_active_endpoint' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
+<form method="post" action="{% url 'users:set_active_endpoint' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
     {% csrf_token %}
     <label for="active-endpoint-select" class="me-2 mb-0 small">Select active endpoint:</label>
     <select id="active-endpoint-select" name="endpoint_id"
             class="form-select form-select-sm py-0 px-1"
             style="height: 30px; font-size: 0.8rem; width: 300px;"
             >
+            <option value=""> </option> 
       {% for endpoint in user.get_accessible_endpoints %}
         <option value="{{ endpoint.id }}" {% if endpoint.id == user.active_endpoint.id %}selected{% endif %}>
           {{ endpoint }}

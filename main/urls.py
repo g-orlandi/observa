@@ -12,7 +12,7 @@ init_db_groups()
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('frontend.urls', namespace='frontend')),
-    path('', include('users.urls', namespace='users'))
+    path('', include('users.urls', namespace='users')),
 ]
 
 if settings.DEBUG:

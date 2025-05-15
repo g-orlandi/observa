@@ -22,6 +22,7 @@ from .decorators import require_pro_user
 
 ################### Main pages ###################
 @login_required
+@require_GET
 def index(request):
     if request.user.is_pro:
         return HttpResponseRedirect('/dashboard/')
@@ -31,7 +32,6 @@ def index(request):
 @require_GET
 @require_pro_user
 def dashboard(request):
-    
     return render(request, 'frontend/pages/dashboard.html', {
     })
 
@@ -102,20 +102,23 @@ def get_online_entities(request):
     })
 
 
-#################### Servers #######################
+###################################################
 
 @login_required
 @require_GET
 def get_entity_status(request, entity_id=None):
     qtype = 0
     source = request.GET.get("source", "server")
-    if source == "server":
+    if source == "server" or source == "backup":
         active_server = request.user.active_server
         if entity_id:
             entity_id = UUID(entity_id)
             active_server = Server.objects.get(id=entity_id)
         parameter = f"{active_server.domain}:{active_server.port}"
         metric = 'is-on'
+        if source == "backup":
+            metric = 'restic-up'
+
     elif source == "endpoint":
         active_endpoint = request.user.active_endpoint
         if entity_id:
@@ -123,7 +126,6 @@ def get_entity_status(request, entity_id=None):
             active_endpoint = Endpoint.objects.get(id=entity_id)
         parameter = active_endpoint.url
         metric = 'monitor-status'
-    
     prom_query = PromQuery.objects.get(code=metric)
 
     dim = "22px"
@@ -154,9 +156,10 @@ class ListEndpointsView(LoginRequiredMixin, ListView):
 class DeleteEndpointView(LoginRequiredMixin, DeleteView):
     model = Endpoint
     success_url = reverse_lazy('frontend:endpoints')
-    template_name = "frontend/components/delete_endpoint_confirmation.html"
+    template_name = "frontend/components/endpoint_delete_confirmation.html"
 
-    
+@login_required
+@require_GET
 def edit_endpoint(request, endpoint_id=None):
 
     if endpoint_id is None:
@@ -248,42 +251,3 @@ def get_range_data(request, metric, step=900):
         return JsonResponse({"labels": labels, "values": values, "title": prom_query.title})
     except Exception as e:
         return JsonResponse({"error": "Metric not found"}, status=404)
-
-@login_required
-@require_POST
-def set_active_server(request):
-    server_id = request.POST.get('server_id')
-    if server_id:
-        request.user.active_server_id = server_id
-        request.user.save()
-    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
-
-@login_required
-@require_POST
-def set_active_endpoint(request):
-    endpoint_id = request.POST.get('endpoint_id')
-    if endpoint_id:
-        request.user.active_endpoint_id = endpoint_id
-        request.user.save()
-    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
-
-
-@login_required
-@require_POST
-def set_date_range(request):
-    user = request.user
-    try:
-        user.set_active_date_filters(request.POST['start_date'], request.POST['end_date'])
-        return HttpResponse(status=204)
-    except Exception as e:
-        return HttpResponseBadRequest(e)
-
-######################################################
-
-def my_box(request):
-    query = request.GET.get('query', 'unknown')
-    import time, random
-    n = random.randint(0,3)
-    time.sleep(n)
-    return HttpResponse(query)
-

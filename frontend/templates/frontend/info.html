@@ -6,6 +6,8 @@
     {% include "frontend/components/endpoint_select.html" %}
 {% elif request.resolver_match.url_name == "resources" %}
     {% include "frontend/components/server_select.html" %}
+{% elif request.resolver_match.url_name == "backup" %}
+    {% include "frontend/components/server_select.html" %}
 {% endif %}
 
 <div class="container mt-4">
@@ -22,7 +24,7 @@
 <div class="container mb-4">
     <h2 class="text-center"> Historical values </h2>
   
-    <form id="data-range-form" method="POST" action="/set-date-range/"
+    <form id="data-range-form" method="POST" action="{% url 'users:set_date_range' %}"
           class="row g-2 align-items-center justify-content-start">
           {% csrf_token %}
       <div class="col-auto">

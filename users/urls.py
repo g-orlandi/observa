@@ -33,4 +33,9 @@ urlpatterns = [
     path('password-reset-complete/',
         auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
         name='password_reset_complete'),
+
+    path('set-active-server/', views.set_active_server, name='set_active_server'),
+    path('set-active-endpoint/', views.set_active_endpoint, name='set_active_endpoint'),
+    path('set-date-range/', views.set_date_range, name='set_date_range'),
+
 ]
