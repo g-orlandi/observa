@@ -1,0 +1,44 @@
+{% extends "frontend/base.html" %}
+{% block content %}
+    {% block entity_selector %}
+        {% if request.resolver_match.url_name == "network" %}
+            {% include "frontend/components/endpoint_select.html" %}
+        {% elif request.resolver_match.url_name in "resources backup" %}
+            {% include "frontend/components/server_select.html" %}
+        {% endif %}
+    {% endblock entity_selector %}
+    
+    {% block actual_values %}
+        <h3> Actual values </h3>
+    {% endblock actual_values %}
+
+    {% block date_selector %}
+        <div class="container mb-4">
+    <h2 class="text-center">Historical values</h2>
+    <form id="data-range-form" method="POST" action="{% url 'users:set_date_range' %}" class="row g-2 align-items-center justify-content-start">
+        {% csrf_token %}
+        <div class="col-auto">
+        <label for="start-date" class="col-form-label small mb-0">From:</label>
+        </div>
+        <div class="col-auto">
+        <input type="date" id="start-date" name="start_date" class="form-control form-control-sm"
+                value="{{ request.user.get_active_date_filters.date_from|date:'Y-m-d' }}">
+        </div>
+        <div class="col-auto">
+        <label for="end-date" class="col-form-label small mb-0">To:</label>
+        </div>
+        <div class="col-auto">
+        <input type="date" id="end-date" name="end_date" class="form-control form-control-sm"
+                value="{{ request.user.get_active_date_filters.date_to|date:'Y-m-d' }}">
+        </div>
+        <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+        </div>
+    </form>
+    </div>
+    {% endblock date_selector %}
+
+    {% block charts %}
+        <h3> Charts </h3>
+    {% endblock charts %}
+{% endblock content %}

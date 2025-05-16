@@ -33,6 +33,7 @@ def index(request):
 @require_pro_user
 def dashboard(request):
     return render(request, 'frontend/pages/dashboard.html', {
+        "graph_include": "frontend/components/graphs.html"
     })
 
 @login_required
@@ -45,8 +46,8 @@ def resources(request):
         {"title": "Uptime since last boot", "metric": "uptime-days", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history", "unit": "days"},
         {"title": "Http request (5m)", "metric": "http-req", "url_name": "frontend:get_instantaneous_data", "icon": "bi-activity"},
         {"title": "CPU Usage", "metric": "cpu-usage", "url_name": "frontend:get_instantaneous_data", "icon": "bi-cpu", "unit": "%", "col": 3},
-        {"title": "Memory Used", "metric": "mem-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-memory", "col": 3},
-        {"title": "Disk Used", "metric": "disk-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-hdd-fill", "col": 3},
+        # {"title": "Memory Used", "metric": "mem-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-memory", "unit": "GB","col": 3},
+        # {"title": "Disk Used", "metric": "disk-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-hdd-fill", "unit": "GB","col": 3},
     ]
     charts = [
         {"id": "cpuChart", "title": "CPU Usage Trend", "metric": "cpu-usage", "color": "#0d6efd"},
@@ -54,12 +55,9 @@ def resources(request):
         {"id": "diskChart", "title": "Disk Trend", "metric": "disk-used", "color": "#a110a2"},
         {"id": "requestChart", "title": "Http request Trend", "metric": "http-req", "color": "#c110a2"},
     ]
-
-    return render(request, "frontend/info.html", {
+    return render(request, "frontend/pages/resources.html", {
         "widgets": widgets,
         "charts": charts,
-        "select": {"entity":"server",},
-        "graph_include": "frontend/components/graphs.html"
     })
 
 
@@ -74,14 +72,13 @@ def network(request):
     ]
 
     charts = [
-        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "entity": "endpoint", "color": "#0d6efd"},
-        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2"},
+        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "entity": "endpoint", "color": "#0d6efd", "col": 12},
+        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2", "col": 12},
     ]
 
     return render(request, "frontend/info.html", {
         "widgets": widgets,
         "charts": charts,
-        "graph_include": "frontend/components/graphs.html"
     })
 
 @login_required
@@ -95,7 +92,19 @@ def report(request):
 @require_GET
 @require_pro_user
 def backup(request):
-    return render(request, 'frontend/pages/backup.html', {
+    widgets = [
+        {"title": "Backup status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half", "source": "backup"},
+        {"title": "Last snapshot", "metric": "os", "url_name": "frontend:get_instantaneous_data", "icon": "bi-gear-fill"},
+        {"title": "Snapshots count", "metric": "uptime-days", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history"},
+    ]
+    charts = [
+        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snapshot-count", "color": "#a110a2", "col": 12},
+        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "file-size", "color": "#6610f2", "col": 12},
+        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "file-count", "color": "#0d6efd", "col": 12},
+    ]
+    return render(request, "frontend/info.html", {
+        "widgets": widgets,
+        "charts": charts,
     })
 
 ################### Dashboard ###################
@@ -154,7 +163,6 @@ def get_entity_status(request, entity_id=None):
         metric = 'is-on'
         if source == "backup":
             metric = 'restic-up'
-
     elif source == "endpoint":
         active_endpoint = request.user.active_endpoint
         if entity_id:
@@ -244,6 +252,10 @@ def get_instantaneous_data(request, metric):
             active_endpoint = request.user.active_endpoint
             assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
             parameter = active_endpoint.url
+        elif source == "backup":
+            active_server = request.user.active_server
+            assert prom_query.target_system == PromQuery.TargetSystem.RESTIC, "Absent metric for Backup-Server obj."
+            parameter = f"{active_server.domain}:{active_server.port}"
         
         data = api.generic_call(parameter, prom_query, qtype)
         return HttpResponse(data)
@@ -276,6 +288,13 @@ def get_range_data(request, metric, step=900):
             else:
                 active_entity = request.user.active_endpoint
                 parameter = active_entity.url
+        elif source == "backup":
+            assert prom_query.target_system == PromQuery.TargetSystem.RESTIC, "Absent metric for Backup-Server obj."
+            if all:
+                parameter = user.get_accessible_servers_string()
+            else:
+                active_entity = request.user.active_server
+                parameter = f"{active_entity.domain}:{active_entity.port}"
 
         
         date_filter = user.get_active_date_filters()

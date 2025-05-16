@@ -1,0 +1,57 @@
+{% extends "frontend/info.html" %}
+
+{% block other_widgets %}
+<!-- Memory Used -->
+  <div class="col-md-3">
+    <div class="p-3 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted small"><i class="bi bi-memory"></i> Memory Used</div>
+      <div class="fs-5 fw-bold text-dark">
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-used' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> /
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-tot' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+      <div class="text-success small mt-1">
+        Free: 
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='mem-free' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+    </div>
+  </div>
+
+  <!-- Disk Used -->
+  <div class="col-md-3">
+    <div class="p-3 bg-light border rounded shadow-sm h-100">
+      <div class="text-muted small"><i class="bi bi-hdd-fill"></i> Disk Used</div>
+      <div class="fs-5 fw-bold text-dark">
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-used' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> /
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-tot' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+      <div class="text-success small mt-1">
+        Free: 
+        <span 
+          hx-get="{% url 'frontend:get_instantaneous_data' metric='disk-free' %}" 
+          hx-trigger="load" 
+          hx-swap="outerHTML">?
+        </span> GB
+      </div>
+    </div>
+  </div>
+{% endblock other_widgets %}

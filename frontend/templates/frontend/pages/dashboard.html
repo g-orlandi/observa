@@ -1,4 +1,4 @@
-{% extends "frontend/info.html" %}
+{% extends "frontend/info_base.html" %}
 {% load static %}
 
 {% block actual_values %}
@@ -40,7 +40,7 @@
 
 {% endblock %}
 
-{% block aggregated_values %}
+{% block charts %}
   <br>
 <div class="row mt-3">
   <div class="col-md-12">
@@ -62,7 +62,7 @@
 
 </div>
 
-{% endblock aggregated_values %}
+{% endblock charts %}
 
 {% block extrajs %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

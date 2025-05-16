@@ -25,19 +25,13 @@
             {% endblock sidebar %}
 
             <div class="flex-grow-1" style="margin-left: 280px;">
-                <!-- Navbar dentro il contenuto -->
-                 {% comment %} {% block navbar %}
-                <nav class="navbar sticky-top bg-light">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" href="#">Sticky top</a>
-                    </div>
-                </nav>
-                {% endblock navbar %} {% endcomment %}
 
                 <div class="p-4">
+
                     {% block content %}
-                    <h2>Content goes here</h2>
+                        <h2>Content goes here</h2>
                     {% endblock content %}
+                    
                 </div>
             </div>
         </div>
