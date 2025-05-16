@@ -3,7 +3,7 @@
     {% block entity_selector %}
         {% if request.resolver_match.url_name == "network" %}
             {% include "frontend/components/endpoint_select.html" %}
-        {% elif request.resolver_match.url_name in "resources backup" %}
+        {% elif request.resolver_match.url_name == "resources" %}
             {% include "frontend/components/server_select.html" %}
         {% endif %}
     {% endblock entity_selector %}

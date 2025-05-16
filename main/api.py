@@ -1,20 +1,13 @@
-import requests
-from main import settings
-
-from requests.auth import HTTPBasicAuth
-from backend.models import PromQuery
 from datetime import datetime
 import time
 
 import requests
-import time
-from datetime import datetime
 from requests.auth import HTTPBasicAuth
+
 from backend.models import PromQuery
 from main import settings
 
-# url = "http://uptime.brainstorm.it:9090/api/v1/query?query="
-# server = "www1.brainstorm.it:9100"
+
 
 def generic_call(parameter, prom_query, qtype, range_suffix=None):
 

@@ -106,7 +106,7 @@ PRO user here can have a fine-grained look on their backup-server status.
 @require_pro_user
 def backup(request):
     widgets = [
-        {"title": "Backup status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half", "source": "backup"},
+        {"title": "Restic status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half", "source": "backup"},
         {"title": "Last snapshot", "metric": "last-snap-timestamp", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history", "source": "backup", "unit": "hours ago"},
         {"title": "Snapshots count", "metric": "snaps-count", "url_name": "frontend:get_instantaneous_data", "icon": "bi-123", "source": "backup"},
     ]
