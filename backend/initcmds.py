@@ -30,6 +30,10 @@ def init_db_query():
                 )
             
             print(f'{len(queries)} prom queries added!')
+    except Exception as e:
+        print('Error while filling DB with PROMETHEUS queries: ' + str(e))
+    
+    try:
         if not PromQuery.objects.filter(target_system=PromQuery.TargetSystem.UPTIME).exists():
             target_system = "uptime"
             queries = [
@@ -50,6 +54,30 @@ def init_db_query():
                 )
             
             print(f'{len(queries)} kuma queries added!')       
-        
     except Exception as e:
-        print('Error while filling DB with queries: ' + str(e))
+        print('Error while filling DB with KUMA queries: ' + str(e))
+
+
+    try:
+        if not PromQuery.objects.filter(target_system=PromQuery.TargetSystem.RESTIC).exists():
+            target_system = "restic"
+            queries = [
+                # ("Monitor status", "monitor-status", 'monitor_status{monitor_url=~"PLACEHOLDER"}'),
+                # ("Monitor status all", "monitor-status-all", 'sum(monitor_status{monitor_url=~"PLACEHOLDER"})'),
+                # ("Response time", "response-time", 'avg_over_time(monitor_response_time{monitor_url="PLACEHOLDER"}[5m])'),
+                # ("Certificate days remaining", "cert-days-rem", 'monitor_cert_days_remaining{monitor_url="PLACEHOLDER"}'),
+                # ("Uptime percentage", "uptime-perc", 'round(avg_over_time(monitor_status{monitor_url="PLACEHOLDER"}[30d])*100, 1/100)')
+            ]
+
+
+            for title, code, expression in queries:
+                PromQuery.objects.create(
+                    title=title,
+                    code=code,
+                    expression=expression,
+                    target_system=target_system
+                )
+            
+            print(f'{len(queries)} restic queries added!')       
+    except Exception as e:
+        print('Error while filling DB with RESTIC queries: ' + str(e))

@@ -1,26 +1,30 @@
-# Librerie standard Python
 from datetime import datetime
 from uuid import UUID
 
-# Moduli Django
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
-from django.views.generic.list import ListView
-from django.views.generic.edit import DeleteView
-from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.decorators.http import require_POST, require_GET
 from django.core.exceptions import PermissionDenied
+from django.http import (
+    HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
+)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.decorators.http import require_GET, require_POST
+from django.views.generic.edit import DeleteView
+from django.views.generic.list import ListView
 
-# Moduli del progetto
 from backend.models import PromQuery, Endpoint, Server
 from .forms import EndpointForm
-from main import api, settings
 from .decorators import require_pro_user
+from main import api, settings
+from django.template.loader import render_to_string
 
 
 ################### Main pages ###################
+
+"""
+Views used to implement two different entry point, one for PRO user and one for FREE user
+"""
 @login_required
 @require_GET
 def index(request):
@@ -28,6 +32,10 @@ def index(request):
         return HttpResponseRedirect('/dashboard/')
     return HttpResponseRedirect('/network/')
 
+
+"""
+The synoptic look on all the entity status; it's the entry point for PRO user
+"""
 @login_required
 @require_GET
 @require_pro_user
@@ -36,6 +44,10 @@ def dashboard(request):
         "graph_include": "frontend/components/graphs.html"
     })
 
+"""
+This is the presentation of the metrics for a single SERVER at a time;
+PRO user here can have a fine-grained look on their server status.
+"""
 @login_required
 @require_GET
 @require_pro_user
@@ -61,6 +73,10 @@ def resources(request):
     })
 
 
+"""
+This is the presentation of the metrics for a single ENDPOINT at a time;
+all user here can have a fine-grained look on their endpoint status.
+"""
 @login_required
 @require_GET
 def network(request):
@@ -72,15 +88,19 @@ def network(request):
     ]
 
     charts = [
-        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "entity": "endpoint", "color": "#0d6efd", "col": 12},
+        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "color": "#0d6efd", "col": 12},
         {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2", "col": 12, "entity": "endpoint"},
     ]
 
-    return render(request, "frontend/info.html", {
+    return render(request, "frontend/pages/info.html", {
         "widgets": widgets,
         "charts": charts,
     })
 
+"""
+This is the presentation of the metrics for a single backup-server at a time;
+PRO user here can have a fine-grained look on their backup-server status.
+"""
 @login_required
 @require_GET
 @require_pro_user
@@ -91,11 +111,11 @@ def backup(request):
         {"title": "Snapshots count", "metric": "snaps-count", "url_name": "frontend:get_instantaneous_data", "icon": "bi-123", "source": "backup"},
     ]
     charts = [
-        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count", "color": "#a110a2", "col": 12, "entity": "backup"},
-        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size", "color": "#6610f2", "col": 12, "entity": "backup"},
-        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count", "color": "#0d6efd", "col": 12, "entity": "backup"},
+        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count", "color": "#a110a2", "col": 12},
+        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size", "color": "#6610f2", "col": 12},
+        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count", "color": "#0d6efd", "col": 12},
     ]
-    return render(request, "frontend/info.html", {
+    return render(request, "frontend/pages/info.html", {
         "widgets": widgets,
         "charts": charts,
     })
@@ -155,30 +175,48 @@ def get_online_entities(request):
 def get_entity_status(request, entity_id=None):
     qtype = 0
     source = request.GET.get("source", "server")
-    if source == "server" or source == "backup":
-        active_server = request.user.active_server
-        if entity_id:
-            entity_id = UUID(entity_id)
-            active_server = Server.objects.get(id=entity_id)
-        parameter = f"{active_server.domain}:{active_server.port}"
-        metric = 'is-on'
-        if source == "backup":
-            metric = 'restic-up'
-    elif source == "endpoint":
-        active_endpoint = request.user.active_endpoint
-        if entity_id:
-            entity_id = UUID(entity_id)
-            active_endpoint = Endpoint.objects.get(id=entity_id)
-        parameter = active_endpoint.url
-        metric = 'monitor-status'
-    prom_query = PromQuery.objects.get(code=metric)
-
-    dim = "22px"
     
-    response = api.generic_call(parameter, prom_query, qtype)
-    color = "green" if int(response) == 1 else "red"
-    html = f'<span style="display:inline-block; width:{dim}; height:{dim}; border-radius:50%; background:{color};margin-top: 5px;"></span>'
-    return HttpResponse(html)
+    try:
+        if source in ("server", "backup"):
+            if entity_id:
+                entity_id = UUID(entity_id)
+                active_server = get_object_or_404(Server, id=entity_id)
+                if active_server not in request.user.get_accessible_servers():
+                    raise PermissionDenied()
+            else:
+                active_server = request.user.active_server
+
+            parameter = f"{active_server.domain}:{active_server.port}"
+            metric = 'restic-up' if source == "backup" else 'is-on'
+
+        elif source == "endpoint":
+            if entity_id:
+                entity_id = UUID(entity_id)
+                active_endpoint = get_object_or_404(Endpoint, id=entity_id)
+                if active_endpoint not in request.user.get_accessible_endpoints():
+                    raise PermissionDenied()
+            else:
+                active_endpoint = request.user.active_endpoint
+
+            parameter = active_endpoint.url
+            metric = 'monitor-status'
+
+        else:
+            return HttpResponseBadRequest("Unknown source")
+
+        prom_query = PromQuery.objects.get(code=metric)
+        response = api.generic_call(parameter, prom_query, qtype)
+
+        color = "green" if int(response) == 1 else "red"
+        html = render_to_string("frontend/components/status_dot.html", {
+            "color": color,
+            "dim": "22px",
+            "title": f"Status: {'online' if int(response) == 1 else 'offline'}"
+        })
+        return HttpResponse(html)
+
+    except (ValueError, PromQuery.DoesNotExist):
+        return HttpResponseBadRequest("Invalid parameters")
 
 
 ######################################################
@@ -257,11 +295,13 @@ def get_instantaneous_data(request, metric):
             active_server = request.user.active_server
             assert prom_query.target_system == PromQuery.TargetSystem.RESTIC, "Absent metric for Backup-Server obj."
             parameter = f"{active_server.domain}:{active_server.port}"
+        else:
+            return HttpResponseBadRequest("Unknown source")
         
         data = api.generic_call(parameter, prom_query, qtype)
         return HttpResponse(data)
     except Exception as e:
-        return HttpResponse("None")
+        return HttpResponse("None", status=400)
 
 @login_required
 @require_GET
@@ -306,4 +346,4 @@ def get_range_data(request, metric, step=900):
         values = [float(v[1]) for v in data]
         return JsonResponse({"labels": labels, "values": values, "title": prom_query.title})
     except Exception as e:
-        return JsonResponse({"error": "Metric not found"}, status=404)
+        return JsonResponse({"error": "Metric not found"}, status=400)
