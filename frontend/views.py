@@ -73,19 +73,12 @@ def network(request):
 
     charts = [
         {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "entity": "endpoint", "color": "#0d6efd", "col": 12},
-        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2", "col": 12},
+        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2", "col": 12, "entity": "endpoint"},
     ]
 
     return render(request, "frontend/info.html", {
         "widgets": widgets,
         "charts": charts,
-    })
-
-@login_required
-@require_GET
-@require_pro_user
-def report(request):
-    return render(request, 'frontend/pages/report.html', {
     })
 
 @login_required
@@ -94,17 +87,25 @@ def report(request):
 def backup(request):
     widgets = [
         {"title": "Backup status", "metric": "", "url_name": "frontend:get_entity_status", "icon": "bi-circle-half", "source": "backup"},
-        {"title": "Last snapshot", "metric": "os", "url_name": "frontend:get_instantaneous_data", "icon": "bi-gear-fill"},
-        {"title": "Snapshots count", "metric": "uptime-days", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history"},
+        {"title": "Last snapshot", "metric": "last-snap-timestamp", "url_name": "frontend:get_instantaneous_data", "icon": "bi-clock-history", "source": "backup", "unit": "hours ago"},
+        {"title": "Snapshots count", "metric": "snaps-count", "url_name": "frontend:get_instantaneous_data", "icon": "bi-123", "source": "backup"},
     ]
     charts = [
-        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snapshot-count", "color": "#a110a2", "col": 12},
-        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "file-size", "color": "#6610f2", "col": 12},
-        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "file-count", "color": "#0d6efd", "col": 12},
+        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count", "color": "#a110a2", "col": 12, "entity": "backup"},
+        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size", "color": "#6610f2", "col": 12, "entity": "backup"},
+        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count", "color": "#0d6efd", "col": 12, "entity": "backup"},
     ]
     return render(request, "frontend/info.html", {
         "widgets": widgets,
         "charts": charts,
+    })
+
+
+@login_required
+@require_GET
+@require_pro_user
+def report(request):
+    return render(request, 'frontend/pages/report.html', {
     })
 
 ################### Dashboard ###################
@@ -233,7 +234,7 @@ def edit_endpoint(request, endpoint_id=None):
 
 ######################################################
 
-################### Resources ########################
+################### ########################
 
 @login_required
 @require_GET

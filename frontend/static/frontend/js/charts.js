@@ -1,58 +1,3 @@
-function prepareDygraphData(labels, dataSeries) {
-  return labels.map((label, i) => [new Date(label), dataSeries[i]]);
-}
-
-function drawChart(divId, data) {
-  element = document.getElementById(divId);
-  color = element.dataset['color'];
-  title = data.title;
-
-  if(element._dygraphHandle !== undefined){
-
-    // If we have already created an object, we destroy it to avoid memory leaks
-    element._dygraphHandle.destroy();
-  }
-  chart_obj = new Dygraph(document.getElementById(divId), prepareDygraphData(data.labels, data.values), {
-    labels: ["Time", title],
-    ylabel: title,
-    animatedZooms: true,
-    strokeWidth: 2,
-    colors: [color],
-    legend: "always",
-    labelsUTC: true,
-  });
-
-  // We save the dygraph object in a property of the element in order to retrieve it later on
-  element._dygraphHandle = chart_obj; 
-}
-
-function fetchAndRender(divId) {
-  element = document.getElementById(divId);
-  metric = element.dataset['metric'];
-  pathname = window.location.pathname;
-  if (pathname === '/network/'){
-    source = 'endpoint';
-  }
-  else if(pathname === '/resources/'){
-    source = 'server';
-  }
-fetch(`/api/range-data/${metric}?source=${source}`)
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-    }
-    return res.json();
-  })
-  .then(data => {
-    drawChart(divId, data);
-  })
-  .catch(err => {
-    console.error(`Errore nel caricamento dati per ${metric}:`, err);
-    // alert(err.message);
-  });
-
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   elements = document.querySelectorAll('.chart');
   console.log(elements)
@@ -115,3 +60,69 @@ function refreshAllCharts(){
     fetchAndRender(elements[i].id);
   };
 }
+
+function fetchAndRender(divId) {
+  element = document.getElementById(divId);
+  metric = element.dataset['metric'];
+  pathname = window.location.pathname;
+  if (pathname === '/network/'){
+    source = 'endpoint';
+  }
+  else if(pathname === '/resources/'){
+    source = 'server';
+  }
+  else if(pathname === '/backup/'){
+    source = 'backup';
+  }
+fetch(`/api/range-data/${metric}?source=${source}`)
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} – ${res.statusText}`);
+    }
+    return res.json();
+  })
+  .then(data => {
+    drawChart(divId, data);
+  })
+  .catch(err => {
+    console.error(`Errore nel caricamento dati per ${metric}:`, err);
+    // alert(err.message);
+  });
+
+}
+
+
+function prepareDygraphData(labels, dataSeries) {
+  return labels.map((label, i) => [new Date(label), dataSeries[i]]);
+}
+
+function drawChart(divId, data) {
+  element = document.getElementById(divId);
+  color = element.dataset['color'];
+  title = data.title;
+
+  if(element._dygraphHandle !== undefined){
+
+    // If we have already created an object, we destroy it to avoid memory leaks
+    element._dygraphHandle.destroy();
+  }
+  chart_obj = new Dygraph(document.getElementById(divId), prepareDygraphData(data.labels, data.values), {
+    labels: ["Time", title],
+    ylabel: title,
+    animatedZooms: true,
+    strokeWidth: 2,
+    colors: [color],
+    legend: "always",
+    labelsUTC: true,
+  });
+
+  // We save the dygraph object in a property of the element in order to retrieve it later on
+  element._dygraphHandle = chart_obj; 
+}
+
+
+
+
+
+
+
