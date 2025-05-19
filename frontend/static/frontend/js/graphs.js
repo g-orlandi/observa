@@ -1,4 +1,5 @@
 function drawChart(divId, dataList) {
+  // debugger
   const element = document.getElementById(divId);
   if (!Array.isArray(dataList) || dataList.length === 0) return;
 

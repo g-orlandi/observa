@@ -206,13 +206,17 @@ def get_entity_status(request, entity_id=None):
 
         prom_query = PromQuery.objects.get(code=metric)
         response = api.generic_call(parameter, prom_query, qtype)
-
-        color = "green" if int(response) == 1 else "red"
-        html = render_to_string("frontend/components/status_dot.html", {
-            "color": color,
-            "dim": "22px",
-            "title": f"Status: {'online' if int(response) == 1 else 'offline'}"
-        })
+        try:
+            color = "green" if int(response) == 1 else "red"
+            color = "gray"
+            html = render_to_string("frontend/components/status_dot.html", {
+                "color": color,
+                "dim": "22px",
+                "title": f"Status: {'online' if int(response) == 1 else 'offline'}"
+            })
+        except Exception as e:
+            print('Error while retrieving entity status: ' + str(e))
+            html = '?'
         return HttpResponse(html)
 
     except (ValueError, PromQuery.DoesNotExist):

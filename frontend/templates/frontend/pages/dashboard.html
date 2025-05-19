@@ -50,13 +50,14 @@
       </div>
       <div class="chart"
            id="uptimeChart"
-           data-metric="monitor-status:endpoint:all;is-on:server:all">
+           data-metric="monitor-status-all:endpoint:all;is-on-all:server:all">
       </div>
     </div>
   </div>
 </div>
 
-<div class="row mt-3">
+
+{% comment %} <div class="row mt-3">
   <div class="col-md-12">
     <div class="chart-card p-3 bg-white border rounded shadow-sm">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -64,12 +65,13 @@
       </div>
       <div class="chart"
            id="resourcesChart"
-           data-metric="cpu-usage:server:all;disk-used:server:all;mem-used:server:all"
+           data-metric="cpu-usage:server:all"
            data-color="#0d6efd;#a110a2;#6610f2">
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
+
 {% endblock charts %}
 
 {% block extrajs %}

@@ -19,8 +19,8 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None, all=0):
         assert range_suffix, "RANGE query must have a range suffix"
 
     expression = prom_query.expression.replace("PLACEHOLDER", parameter)
-    if all:
-        expression = 'sum(' + expression + ')'
+    # if all:
+    #     expression = 'sum(' + expression + ')'
     if qtype == 0:
         final_request = settings.PROMETHEUS_URL + expression
     else:
@@ -33,7 +33,12 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None, all=0):
     try:
         response = requests.get(final_request, auth=auth)
         response.raise_for_status()
-        response = response.json().get('data', {}).get('result', [])[0]
+        response = response.json().get('data', {}).get('result', [])
+        # if all:
+        #     pass
+        # else:
+        response = response[0]
+
         if qtype:
             return response['values']
         if expression.startswith('node_os_info'):
