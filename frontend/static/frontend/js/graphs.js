@@ -1,80 +1,79 @@
-function drawChart(divId, dataList, filter = "both") {
+function drawChart(divId, dataList) {
   const element = document.getElementById(divId);
-  if (!Array.isArray(dataList) || dataList.length === 0) {
-    console.error("No data for charts.");
-    return;
-  }
+  if (!Array.isArray(dataList) || dataList.length === 0) return;
 
-  // Raccogli tutte le etichette e i valori in base al filtro
-  const allLabels = new Set();
-  const allSeries = [];
+  const labels = ["Time"];
+  const seriesData = [];
 
   dataList.forEach((data, index) => {
-    if (!data.labels || !data.values || data.labels.length === 0) {
-      console.warn(`Serie ${index} priva di etichette o valori.`);
-      return;
+    if (data.labels && data.values) {
+      seriesData.push({
+        title: data.title || `Serie ${index + 1}`,
+        labels: data.labels,
+        values: data.values,
+      });
     }
-    allLabels.add(...data.labels);
-    allSeries.push({
-      labels: data.labels,
-      values: data.values,
-      title: data.title || `Serie ${index + 1}`
-    });
   });
 
-  if (allSeries.length === 0) {
-    console.warn("Nessuna serie valida trovata.");
-    return;
-  }
-
-  // Elimina eventuale grafico precedente
-  if (element._dygraphHandle !== undefined) {
-    element._dygraphHandle.destroy();
-  }
-
-  // Etichette
-const labels = ["Time"];
-const colorAttr = element.dataset['color'] || "";
-const customColors = colorAttr.split(';').map(c => c.trim()).filter(Boolean);
-
-const activeSeries = allSeries.filter((_, i) => {
-  if (filter === "first") return i === 0;
-  if (filter === "second") return i === 1;
-  return true;
-});
-
-labels.push(...activeSeries.map(s => s.title));
-
-const colors = customColors.length > 0
-  ? customColors.slice(0, activeSeries.length)
-  : ["#007bff", "#28a745", "#ff8800", "#cc00cc", "#00cccc", "#aaaa00"].slice(0, activeSeries.length);
-
-  // Prepara unione temporale dei dati
-  const allDatesSet = new Set(activeSeries.flatMap(s => s.labels));
+  const allDatesSet = new Set(seriesData.flatMap(s => s.labels));
   const allDates = Array.from(allDatesSet).sort((a, b) => new Date(a) - new Date(b));
 
-  const seriesMaps = activeSeries.map(s => new Map(s.labels.map((label, i) => [label, s.values[i]])));
+  const seriesMaps = seriesData.map(s => new Map(s.labels.map((label, i) => [label, s.values[i]])));
 
   const finalData = allDates.map(date => {
     const row = [new Date(date)];
-    seriesMaps.forEach(map => {
-      row.push(map.get(date) ?? null);
-    });
+    seriesMaps.forEach(map => row.push(map.get(date) ?? null));
     return row;
   });
 
-  const chart_obj = new Dygraph(element, finalData, {
+  labels.push(...seriesData.map(s => s.title));
+  const colorAttr = element.dataset['color'] || "";
+  const customColors = colorAttr.split(';').map(s => s.trim()).filter(Boolean);
+  const colors = customColors.length ? customColors : undefined;
+
+  // checkbox container
+  const controlId = divId + "-controls";
+  let controlContainer = document.getElementById(controlId);
+  if (!controlContainer) {
+    controlContainer = document.createElement("div");
+    controlContainer.id = controlId;
+    element.parentNode.insertBefore(controlContainer, element.nextSibling);
+  }
+  controlContainer.innerHTML = "";
+
+  // visibility tracking
+  const visibility = new Array(seriesData.length).fill(true);
+
+  const g = new Dygraph(element, finalData, {
     labels,
-    // ylabel: labels.slice(1).join(" / "),
+    // ylabel: "Metriche",
     animatedZooms: true,
     strokeWidth: 2,
-    colors: colors.slice(0, activeSeries.length),
+    colors,
     legend: "always",
     labelsUTC: true,
+    visibility
   });
 
-  element._dygraphHandle = chart_obj;
+  seriesData.forEach((serie, i) => {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = true;
+    checkbox.onchange = () => {
+      visibility[i] = checkbox.checked;
+      g.updateOptions({ visibility });
+    };
+
+    const label = document.createElement("label");
+    label.style.marginRight = "20px";
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(` ${serie.title}`));
+    controlContainer.appendChild(label);
+  });
+
+  element._dygraphHandle = g;
 }
+
 
 
 function splitBySemicolonColon(str) {
@@ -90,7 +89,7 @@ function splitBySemicolonColon(str) {
     .filter(Boolean);
 }
 
-function fetchAndRender(divId, filter = "both") {
+function fetchAndRender(divId) {
   const element = document.getElementById(divId);
   const metricTriples = splitBySemicolonColon(element.dataset['metric']); // [metric, source, all]
 
@@ -106,7 +105,7 @@ function fetchAndRender(divId, filter = "both") {
   Promise.all(promises)
     .then(dataList => {
       console.log("Dati ricevuti:", dataList);
-      drawChart(divId, dataList, filter);
+      drawChart(divId, dataList);
     })
     .catch(err => {
       console.error("Errore nel caricamento delle metriche:", err);
@@ -114,10 +113,10 @@ function fetchAndRender(divId, filter = "both") {
 }
 
 
-function refreshAllCharts(filter = "both") {
+function refreshAllCharts() {
   const elements = document.querySelectorAll('.chart');
   for (let i = 0; i < elements.length; i++) {
-    fetchAndRender(elements[i].id, filter);
+    fetchAndRender(elements[i].id);
   }
 }
 
@@ -139,8 +138,7 @@ function onDataRangeFormSubmit(event) {
     }
   }).then(response => {
     if (response.ok) {
-      const selectedFilter = document.getElementById("seriesSelector")?.value || "both";
-      refreshAllCharts(selectedFilter);
+      refreshAllCharts();
     } else if (response.status === 400) {
       response.text().then(text => {
         alert("Errore: " + text);
@@ -162,13 +160,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("data-range-form");
   if (form) {
     form.addEventListener('submit', onDataRangeFormSubmit);
-  }
-
-  const selector = document.getElementById("seriesSelector");
-  if (selector) {
-    selector.addEventListener("change", () => {
-      const selected = selector.value;
-      refreshAllCharts(selected);
-    });
   }
 });

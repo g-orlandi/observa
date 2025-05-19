@@ -2,13 +2,12 @@
 {% load static %}
 
 {% block actual_values %}
-
 <div class="container">
-<div class="row justify-content-center align-items-stretch">
+  <div class="row justify-content-center align-items-stretch">
     <!-- Colonna 1 -->
- <div class="col-md-2">
+    <div class="col-md-2">
       <div class="p-3 text-center">
-        <h5> Entities online </h5>
+        <h5>Entities online</h5>
         <div id="gaugeEntities"></div>
         <div id="textEntities" class="mt-2 fw-bold text-success"></div>
       </div>
@@ -22,7 +21,7 @@
     <!-- Colonna 2 -->
     <div class="col-md-2">
       <div class="p-3 text-center">
-        <h6> Servers </h6>
+        <h6>Servers</h6>
         <div id="gaugeServers"></div>
         <div id="textServers" class="mt-2 fw-bold text-success"></div>
       </div>
@@ -31,49 +30,46 @@
     <!-- Colonna 3 -->
     <div class="col-md-2">
       <div class="p-3 text-center">
-        <h6> Endpoints </h6>
+        <h6>Endpoints</h6>
         <div id="gaugeEndpoints"></div>
         <div id="textEndpoints" class="mt-2 fw-bold text-success"></div>
       </div>
     </div>
-  </div> 
-
+  </div>
+</div>
 {% endblock %}
 
 {% block charts %}
-  <br>
- <div class="row mt-3">
-  <div class="col-md-12">
-    <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="text-muted mb-0">Uptime trend</h6>
-        <div>
-          <select id="seriesSelector" class="form-select form-select-sm d-inline-block w-auto">
-            <option value="both">All</option>
-            <option value="first">Endpoints</option>
-            <option value="second">Servers</option>
-          </select>
-        </div>
-      </div>
-      <div class="chart" id="uptimeChart" data-metric="monitor-status:endpoint:all;is-on:server:all" style="width: 100%; height: 240px;"></div>
-    </div>
-  </div>
-</div>
-
+<br>
 
 <div class="row mt-3">
   <div class="col-md-12">
-    <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
+    <div class="chart-card p-3 bg-white border rounded shadow-sm">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="text-muted mb-0">All resources trend</h6>
+        <h6 class="text-muted mb-0">Uptime trend</h6>
       </div>
-      <div class="chart" id="resourcesChart" data-metric="cpu-usage:server:all;disk-used:server:all;mem-used:server:all" style="width: 100%; height: 240px;"></div>
+      <div class="chart"
+           id="uptimeChart"
+           data-metric="monitor-status:endpoint:all;is-on:server:all">
+      </div>
     </div>
   </div>
 </div>
 
+<div class="row mt-3">
+  <div class="col-md-12">
+    <div class="chart-card p-3 bg-white border rounded shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-muted mb-0">CPU trend</h6>
+      </div>
+      <div class="chart"
+           id="resourcesChart"
+           data-metric="cpu-usage:server:all;disk-used:server:all;mem-used:server:all"
+           data-color="#0d6efd;#a110a2;#6610f2">
+      </div>
+    </div>
+  </div>
 </div>
-
 {% endblock charts %}
 
 {% block extrajs %}

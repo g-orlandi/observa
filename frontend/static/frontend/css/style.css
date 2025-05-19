@@ -36,3 +36,12 @@ table th, table td {
     --bs-btn-close-opacity: 1.0 !important;
     box-sizing: border-box !important;
 }
+
+.chart {
+    height: 240px;
+    width: 100%;
+}
+
+#chart-card {
+    height: 320px;
+}
