@@ -62,10 +62,10 @@ def resources(request):
         # {"title": "Disk Used", "metric": "disk-used", "url_name": "frontend:get_instantaneous_data", "icon": "bi-hdd-fill", "unit": "GB","col": 3},
     ]
     charts = [
-        {"id": "cpuChart", "title": "CPU Usage Trend", "metric": "cpu-usage", "color": "#0d6efd"},
-        {"id": "memoryChart", "title": "Memory Usage Trend", "metric": "mem-used", "color": "#6610f2"},
-        {"id": "diskChart", "title": "Disk Trend", "metric": "disk-used", "color": "#a110a2"},
-        {"id": "requestChart", "title": "Http request Trend", "metric": "http-req", "color": "#c110a2"},
+        {"id": "cpuChart", "title": "CPU Usage Trend", "metric": "cpu-usage:server:0", "color": "#0d6efd"},
+        {"id": "memoryChart", "title": "Memory Usage Trend", "metric": "mem-used:server:0", "color": "#6610f2"},
+        {"id": "diskChart", "title": "Disk Trend", "metric": "disk-used:server:0", "color": "#a110a2"},
+        {"id": "requestChart", "title": "Http request Trend", "metric": "http-req:server:0", "color": "#c110a2"},
     ]
     return render(request, "frontend/pages/resources.html", {
         "widgets": widgets,
@@ -88,8 +88,8 @@ def network(request):
     ]
 
     charts = [
-        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time", "color": "#0d6efd", "col": 12},
-        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status", "color": "#6610f2", "col": 12, "entity": "endpoint"},
+        {"id": "latencyChart", "title": "Latency trend", "metric": "response-time:endpoint:0", "color": "#0d6efd", "col": 12},
+        {"id": "uptimeChart", "title": "Uptime trend", "metric": "monitor-status:endpoint:0", "color": "#6610f2", "col": 12, "entity": "endpoint"},
     ]
 
     return render(request, "frontend/pages/info.html", {
@@ -326,6 +326,7 @@ def get_range_data(request, metric, step=900):
             assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
             if all:
                 parameter = user.get_accessible_endpoints_string()
+
             else:
                 active_entity = request.user.active_endpoint
                 parameter = active_entity.url
@@ -341,7 +342,7 @@ def get_range_data(request, metric, step=900):
         date_filter = user.get_active_date_filters()
         range_suffix = api._generate_range_suffix(date_filter['date_from'], date_filter['date_to'], step)
 
-        data = api.generic_call(parameter, prom_query, qtype, range_suffix)
+        data = api.generic_call(parameter, prom_query, qtype, range_suffix, all)
         labels = [datetime.fromtimestamp(v[0]).isoformat() for v in data]
         values = [float(v[1]) for v in data]
         return JsonResponse({"labels": labels, "values": values, "title": prom_query.title})

@@ -6,7 +6,7 @@
 <div class="container">
 <div class="row justify-content-center align-items-stretch">
     <!-- Colonna 1 -->
-    <div class="col-md-2">
+ <div class="col-md-2">
       <div class="p-3 text-center">
         <h5> Entities online </h5>
         <div id="gaugeEntities"></div>
@@ -36,13 +36,13 @@
         <div id="textEndpoints" class="mt-2 fw-bold text-success"></div>
       </div>
     </div>
-  </div>
+  </div> 
 
 {% endblock %}
 
 {% block charts %}
   <br>
-<div class="row mt-3">
+ <div class="row mt-3">
   <div class="col-md-12">
     <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -55,7 +55,19 @@
           </select>
         </div>
       </div>
-      <div class="chart" id="uptimeChart" data-metric="monitor-status" data-color="#6610f2" style="width: 100%; height: 240px;"></div>
+      <div class="chart" id="uptimeChart" data-metric="monitor-status:endpoint:all;is-on:server:all" style="width: 100%; height: 240px;"></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row mt-3">
+  <div class="col-md-12">
+    <div class="p-3 bg-white border rounded shadow-sm" style="height: 300px;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-muted mb-0">All resources trend</h6>
+      </div>
+      <div class="chart" id="resourcesChart" data-metric="cpu-usage:server:all;disk-used:server:all;mem-used:server:all" style="width: 100%; height: 240px;"></div>
     </div>
   </div>
 </div>
@@ -66,6 +78,6 @@
 
 {% block extrajs %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="{% static "frontend/js/dashboard_chart.js" %}"></script>
+<script src="{% static "frontend/js/graphs.js" %}"></script>
 <script src="{% static "frontend/js/dashboard.js" %}"></script>
 {% endblock extrajs %}

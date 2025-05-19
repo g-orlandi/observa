@@ -9,7 +9,7 @@ from main import settings
 
 
 
-def generic_call(parameter, prom_query, qtype, range_suffix=None):
+def generic_call(parameter, prom_query, qtype, range_suffix=None, all=0):
 
     assert isinstance(parameter, str)
     assert qtype in [0,1]
@@ -19,11 +19,14 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None):
         assert range_suffix, "RANGE query must have a range suffix"
 
     expression = prom_query.expression.replace("PLACEHOLDER", parameter)
+    if all:
+        expression = 'sum(' + expression + ')'
     if qtype == 0:
         final_request = settings.PROMETHEUS_URL + expression
     else:
         final_request = settings.PROMETHEUS_RANGE_URL + expression + range_suffix
 
+    # import pdb;pdb.set_trace()
     print(final_request)
 
     auth = HTTPBasicAuth(settings.PROMETHEUS_USER, settings.PROMETHEUS_PWD)
