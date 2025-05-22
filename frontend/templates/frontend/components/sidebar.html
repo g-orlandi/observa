@@ -21,7 +21,7 @@
     <li>
         <span class="text-uppercase small ps-2"><strong>Server</strong></span>
     </li>
-    <li>
+    <li id="link-resources">
         {% if IS_USER_PRO %}
         <a href="{% url 'frontend:resources' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'resources' %}active{% endif %}">
         {% else %}
@@ -34,7 +34,7 @@
     <li>
         <span class="text-uppercase small ps-2"><strong>Endpoint</strong></span>
     </li>
-    <li>
+    <li id="link-network">
         <a href="{% url 'frontend:network' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'network' %}active{% endif %}">
             <i class="bi bi-diagram-3 me-2"></i> Network
         </a>

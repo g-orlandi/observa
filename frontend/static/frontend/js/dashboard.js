@@ -80,7 +80,7 @@ function updateDashboard() {
  - every 60 seconds
 **/ 
 document.addEventListener("DOMContentLoaded", () => {
-  // updateDashboard();             
+  updateDashboard();             
   update_interval_in_seconds = 60     
-  // setInterval(updateDashboard, update_interval_in_seconds * 1000); 
+  setInterval(updateDashboard, update_interval_in_seconds * 1000); 
 });

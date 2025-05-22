@@ -208,7 +208,7 @@ def get_entity_status(request, entity_id=None):
         response = api.generic_call(parameter, prom_query, qtype)
         try:
             color = "green" if int(response) == 1 else "red"
-            color = "gray"
+            # color = "gray"
             html = render_to_string("frontend/components/status_dot.html", {
                 "color": color,
                 "dim": "22px",
