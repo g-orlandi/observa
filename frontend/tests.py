@@ -11,7 +11,7 @@ User = get_user_model()
 class FrontendTests(TestCase):
 
     def setUp(self):
-        print('Setup...')
+        print('\nSetup...')
         self.free_password = 'password'
         self.free_user = User.objects.create_user(username='free_user', password=self.free_password)
         self.assertIsNotNone(self.free_user)
@@ -19,6 +19,9 @@ class FrontendTests(TestCase):
         self.pro_password = 'password'
         self.pro_user = User.objects.create_user(username='pro_user', password=self.pro_password, plan=User.Plan.PRO, email='pro_user@email.com')
         self.assertIsNotNone(self.pro_user)
+
+        from django.conf import settings
+        self.assertFalse(settings.DEBUG)
 
     def tearDown(self):
         return super().tearDown()
