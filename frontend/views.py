@@ -111,9 +111,9 @@ def backup(request):
         {"title": "Snapshots count", "metric": "snaps-count", "url_name": "frontend:get_instantaneous_data", "icon": "bi-123", "source": "backup"},
     ]
     charts = [
-        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count", "color": "#a110a2", "col": 12},
-        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size", "color": "#6610f2", "col": 12},
-        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count", "color": "#0d6efd", "col": 12},
+        {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count:backup:0", "color": "#a110a2", "col": 12, "entity": "backup"},
+        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size:backup:0", "color": "#6610f2", "col": 12, "entity": "backup"},
+        {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count:backup:0", "color": "#0d6efd", "col": 12, "entity": "backup"},
     ]
     return render(request, "frontend/pages/info.html", {
         "widgets": widgets,
@@ -177,7 +177,7 @@ def get_entity_status(request, entity_id=None):
     source = request.GET.get("source", "server")
     
     try:
-        if source in ("server", "backup"):
+        if source == "server":
             if entity_id:
                 entity_id = UUID(entity_id)
                 active_server = get_object_or_404(Server, id=entity_id)
@@ -187,7 +187,19 @@ def get_entity_status(request, entity_id=None):
                 active_server = request.user.active_server
 
             parameter = f"{active_server.domain}:{active_server.port}"
-            metric = 'restic-up' if source == "backup" else 'is-on'
+            metric = 'is-on'
+
+        elif source == "backup":
+            if entity_id:
+                entity_id = UUID(entity_id)
+                active_server = get_object_or_404(Server, id=entity_id)
+                if active_server not in request.user.get_accessible_backup_servers():
+                    raise PermissionDenied()
+            else:
+                active_server = request.user.active_backup_server
+
+            parameter = f"{active_server.domain}:{active_server.port}"
+            metric = 'restic-up'
 
         elif source == "endpoint":
             if entity_id:
@@ -281,6 +293,7 @@ def edit_endpoint(request, endpoint_id=None):
 @login_required
 @require_GET
 def get_instantaneous_data(request, metric):
+
     try:
         prom_query = PromQuery.objects.get(code=metric)
 
@@ -296,7 +309,7 @@ def get_instantaneous_data(request, metric):
             assert prom_query.target_system == PromQuery.TargetSystem.UPTIME, "Absent metric for Endpoint obj."
             parameter = active_endpoint.url
         elif source == "backup":
-            active_server = request.user.active_server
+            active_server = request.user.active_backup_server
             assert prom_query.target_system == PromQuery.TargetSystem.RESTIC, "Absent metric for Backup-Server obj."
             parameter = f"{active_server.domain}:{active_server.port}"
         else:
@@ -339,7 +352,7 @@ def get_range_data(request, metric, step=900):
             if all:
                 parameter = user.get_accessible_servers_string()
             else:
-                active_entity = request.user.active_server
+                active_entity = request.user.active_backup_server
                 parameter = f"{active_entity.domain}:{active_entity.port}"
 
         

@@ -20,7 +20,7 @@ page_urlpatterns = [
     path('resources/', views.resources, name="resources"),
     path('network/', views.network, name="network"),
     path('backup/', views.backup, name="backup"),
-    path('report/', views.report, name="report"),
+    # path('report/', views.report, name="report"),
     path('endpoints/', views.ListEndpointsView.as_view(), name='endpoints'),
 ]
 

@@ -31,9 +31,21 @@
         </a>
     </li>
 
-    <li>
-        <span class="text-uppercase small ps-2"><strong>Endpoint</strong></span>
+        <li>
+        {% if IS_USER_PRO %}
+        <a href="{% url 'frontend:backup' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'backup' %}active{% endif %}">
+        {% else %}
+        <a class="nav-link text-secondary disabled" style="pointer-events: none; opacity: 0.5;"> <i class="bi bi-lock" style="margin-right: 6px;"></i>
+        {% endif %}
+            <i class="bi bi-arrow-repeat"></i> Backup
+
+        </a>
     </li>
+
+<li>
+    <div class="text-uppercase small ps-2" style="margin-top:15px;"><strong>Endpoint</strong></div>
+</li>
+
     <li id="link-network">
         <a href="{% url 'frontend:network' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'network' %}active{% endif %}">
             <i class="bi bi-diagram-3 me-2"></i> Network
@@ -45,20 +57,11 @@
         </a>
     </li>
 
-    <li>
-        <span class="text-uppercase small ps-2"><strong>Others</strong></span>
-    </li>
-    <li>
-        {% if IS_USER_PRO %}
-        <a href="{% url 'frontend:backup' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'backup' %}active{% endif %}">
-        {% else %}
-        <a class="nav-link text-secondary disabled" style="pointer-events: none; opacity: 0.5;"> <i class="bi bi-lock" style="margin-right: 6px;"></i>
-        {% endif %}
-            <i class="bi bi-arrow-repeat"></i> Backup
+    {% comment %} <li>
+        <span class="text-uppercase small ps-2"><strong>Backup</strong></span>
+    </li> {% endcomment %}
 
-        </a>
-    </li>
-    <li>
+    {% comment %} <li>
         {% if IS_USER_PRO %}
         <a href="{% url 'frontend:report' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'report' %}active{% endif %}">
         {% else %}
@@ -66,7 +69,7 @@
         {% endif %}
             <i class="bi bi-graph-up"></i> Report
         </a>
-    </li>
+    </li> {% endcomment %}
 </ul>
 
 

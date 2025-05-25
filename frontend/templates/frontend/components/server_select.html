@@ -6,14 +6,14 @@
             class="form-select form-select-sm py-0 px-1"
             style="height: 30px; font-size: 0.8rem; width: 300px;"
             >
-            <option value="">Select a Server...</option> 
+            <option value="">... select a Server...</option> 
       {% for server in user.get_accessible_servers %}
         <option value="{{ server.id }}" {% if server.id == user.active_server.id %}selected{% endif %}>
           {{ server }}
         </option>
       {% endfor %}
     </select>
-    <button type="submit" class="btn btn-sm btn-primary ms-2">Conferma</button>
+    <button type="submit" class="btn btn-sm btn-primary ms-2">Confirm</button>
   
   </form>
   

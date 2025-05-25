@@ -35,6 +35,7 @@ urlpatterns = [
         name='password_reset_complete'),
 
     path('set-active-server/', views.set_active_server, name='set_active_server'),
+    path('set-active-backup-server/', views.set_active_backup_server, name='set_active_backup_server'),
     path('set-active-endpoint/', views.set_active_endpoint, name='set_active_endpoint'),
     path('set-date-range/', views.set_date_range, name='set_date_range'),
 

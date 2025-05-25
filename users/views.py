@@ -59,6 +59,17 @@ def set_active_server(request):
 
 @login_required
 @require_POST
+def set_active_backup_server(request):
+    server_id = request.POST.get('backup_id')
+    if server_id == '':
+        return HttpResponse(status=204)
+    if server_id:
+        request.user.active_backup_server_id = server_id
+        request.user.save()
+    return redirect(request.META.get('HTTP_REFERER', 'frontend:dashboard'))
+
+@login_required
+@require_POST
 def set_active_endpoint(request):
     endpoint_id = request.POST.get('endpoint_id')
     if endpoint_id == '':

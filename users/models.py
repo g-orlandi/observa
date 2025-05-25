@@ -25,6 +25,13 @@ class User(AbstractUser):
         on_delete=models.SET_NULL,
         related_name='active_user'
     )
+    active_backup_server = models.ForeignKey(
+        Server,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='active_user_backup'
+    )
     active_endpoint = models.ForeignKey(
         Endpoint,
         null=True,
@@ -75,7 +82,8 @@ class User(AbstractUser):
         # Remember: Django default is AND
         return Server.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
-        ).distinct()
+        ).filter(is_backup=False).distinct()
+
     
     def get_accessible_servers_string(self):
         servers = self.get_accessible_servers()
@@ -97,6 +105,16 @@ class User(AbstractUser):
             if n >= settings.MAX_ENDPOINTS_FREE:
                 return True
         return False
+    
+    def get_accessible_backup_servers(self):
+        # Remember: Django default is AND
+        return Server.objects.filter(
+            Q(user=self) | Q(group__in=self.groups.all())
+        ).filter(is_backup=True).distinct()
+
+    def get_accessible_servers_string(self):
+        servers = self.get_accessible_backup_servers()
+        return "|".join(f"{s.domain}:{s.port}" for s in servers)
 
     @property
     def is_pro(self):

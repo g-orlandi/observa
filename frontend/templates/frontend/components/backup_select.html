@@ -1,0 +1,19 @@
+<!-- Selezione endpoint -->
+<form method="post" action="{% url 'users:set_active_backup_server' %}" class="d-flex align-items-center ms-2" style="white-space: nowrap;">
+    {% csrf_token %}
+    <label for="active-backup-select" class="me-2 mb-0 small">Select active backup server:</label>
+    <select id="active-backup-select" name="backup_id"
+            class="form-select form-select-sm py-0 px-1"
+            style="height: 30px; font-size: 0.8rem; width: 300px;"
+            >
+            <option value="">... select a Backup Server... </option> 
+      {% for backup_server in user.get_accessible_backup_servers %}
+        <option value="{{ backup_server.id }}" {% if backup_server.id == user.active_backup_server.id %}selected{% endif %}>
+          {{ backup_server }}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-sm btn-primary ms-2">Confirm</button>
+  
+  </form>
+  

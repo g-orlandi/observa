@@ -49,7 +49,7 @@ class Server(MonitoredEntity):
         validators=[MinValueValidator(1), MaxValueValidator(65535)],
         default=9100
     )
-    # is_backup = models.BooleanField(default=False)
+    is_backup = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.domain}:{self.port})"
