@@ -1,4 +1,6 @@
 import threading
+from socketio.exceptions import TimeoutError as SocketTimeoutError
+
 import uuid
 from django.db import models
 from django.conf import settings
@@ -62,6 +64,7 @@ class Server(MonitoredEntity):
 class Endpoint(MonitoredEntity):
     url = models.URLField()
     check_keyword = models.CharField(max_length=100, blank=True)
+    
 
     def __str__(self):
         return f"{self.name} ({self.url})"
@@ -72,10 +75,10 @@ class Endpoint(MonitoredEntity):
         def background_task():
             try:
                 create_new_monitor(self.name, self.url)
-            except TimeoutError:
+            except SocketTimeoutError:
                 pass
             except Exception as e:
-                print(f"[Monitor Creation Error] {e}")
+                print(f"[Monitor Creation Error] {str(e)} ")
 
         threading.Thread(target=background_task, daemon=True).start()
 

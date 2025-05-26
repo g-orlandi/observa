@@ -8,9 +8,10 @@ class EndpointForm(forms.ModelForm):
         model = Endpoint
         fields = [
             'name',
+            'url',
             'description',
             'logo',
-            'url',
+            # 'check_keyword',
             'user',
         ]
         widgets = {'user': forms.HiddenInput()}

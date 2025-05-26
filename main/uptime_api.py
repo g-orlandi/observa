@@ -1,7 +1,8 @@
 from main import settings
 from uptime_kuma_api import UptimeKumaApi, MonitorType
 
-def create_new_monitor(name: str, url: str, keyword: str = None):
+# def create_new_monitor(name: str, url: str, keyword: str):
+def create_new_monitor(name: str, url: str):
     api = UptimeKumaApi(settings.UPTIME_KUMA_URL)
 
     try:
@@ -21,10 +22,10 @@ def create_new_monitor(name: str, url: str, keyword: str = None):
         else:
             print(f"Creating monitor for {url}...")
             api.add_monitor(
-                type=MonitorType.HTTPS,
+                type=MonitorType.HTTP,
                 name=name,
                 url=url,
-                keyword=keyword,
+                # keyword=keyword,
                 interval=60,  # ogni 60 secondi
                 parent=settings.UPTIME_KUMA_GROUP_ID  # opzionale
             )
