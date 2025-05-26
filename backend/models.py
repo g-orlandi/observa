@@ -1,3 +1,4 @@
+import threading
 import uuid
 from django.db import models
 from django.conf import settings
@@ -5,6 +6,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.core.exceptions import ValidationError
 
 from django.contrib.auth.models import Group
+
+from main.uptime_api import create_new_monitor
+
 
 class MonitoredEntity(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
@@ -61,6 +65,23 @@ class Endpoint(MonitoredEntity):
 
     def __str__(self):
         return f"{self.name} ({self.url})"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        def background_task():
+            try:
+                create_new_monitor(self.name, self.url)
+            except TimeoutError:
+                pass
+            except Exception as e:
+                print(f"[Monitor Creation Error] {e}")
+
+        threading.Thread(target=background_task, daemon=True).start()
+
+
+
+
 
 class PromQuery(models.Model):
 

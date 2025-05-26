@@ -112,7 +112,7 @@ class User(AbstractUser):
             Q(user=self) | Q(group__in=self.groups.all())
         ).filter(is_backup=True).distinct()
 
-    def get_accessible_servers_string(self):
+    def get_accessible_backup_servers_string(self):
         servers = self.get_accessible_backup_servers()
         return "|".join(f"{s.domain}:{s.port}" for s in servers)
 

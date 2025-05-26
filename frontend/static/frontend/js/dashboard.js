@@ -42,7 +42,7 @@ function updateDashboard() {
   fetch(`/api/online-entities/`)
     .then(res => res.json())
     .then(data => {
-      const { entities, servers, endpoints } = data;
+      const { entities, servers, endpoints, backups } = data;
 
       // Arrow function, if total > 0 makes the calc
       const perc = (up, down) => {
@@ -54,11 +54,13 @@ function updateDashboard() {
       document.querySelector("#gaugeEntities").innerHTML = "";
       document.querySelector("#gaugeServers").innerHTML = "";
       document.querySelector("#gaugeEndpoints").innerHTML = "";
+      document.querySelector("#gaugeBackups").innerHTML = "";
 
       // Gauges
       createGauge("#gaugeEntities", perc(entities.up, entities.down), "Entities");
       createGauge("#gaugeServers", perc(servers.up, servers.down), "Servers");
       createGauge("#gaugeEndpoints", perc(endpoints.up, endpoints.down), "Endpoints");
+      createGauge("#gaugeBackups", perc(backups.up, backups.down), "Backups");
 
       // update text label
       const setText = (id, up, down) => {
@@ -71,6 +73,7 @@ function updateDashboard() {
       setText("textEntities", entities.up, entities.down);
       setText("textServers", servers.up, servers.down);
       setText("textEndpoints", endpoints.up, endpoints.down);
+      setText("textBackups", backups.up, backups.down);
     })
     .catch(err => console.error('Error while loading data.', err));
 }

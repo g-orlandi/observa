@@ -41,7 +41,6 @@ The synoptic look on all the entity status; it's the entry point for PRO user
 @require_pro_user
 def dashboard(request):
     return render(request, 'frontend/pages/dashboard.html', {
-        "graph_include": "frontend/components/graphs.html"
     })
 
 """
@@ -151,11 +150,14 @@ def get_online_entities(request):
 
     endpoints = user.get_accessible_endpoints_string()
     endpoints_up, endpoints_down = _get_up_down_count("monitor-status-all", endpoints, len(user.get_accessible_endpoints()))
+    
+    backups = user.get_accessible_backup_servers_string()
+    backups_up, backups_down = _get_up_down_count("restic-up-all", backups, len(user.get_accessible_backup_servers()))
 
     return JsonResponse({
         'entities': {
-            'up': servers_up + endpoints_up,
-            'down': servers_down + endpoints_down,
+            'up': servers_up + endpoints_up + backups_up,
+            'down': servers_down + endpoints_down + backups_down,
         },
         'servers': {
             'up': servers_up,
@@ -164,6 +166,10 @@ def get_online_entities(request):
         'endpoints': {
             'up': endpoints_up,
             'down': endpoints_down,
+        },
+        'backups': {
+            'up': backups_up,
+            'down': backups_down,
         },
     })
 
@@ -255,10 +261,9 @@ class ListEndpointsView(LoginRequiredMixin, ListView):
 class DeleteEndpointView(LoginRequiredMixin, DeleteView):
     model = Endpoint
     success_url = reverse_lazy('frontend:endpoints')
-    template_name = "frontend/components/endpoint_delete_confirmation.html"
+    template_name = "frontend/components/delete_endpoint_confirmation.html"
 
 @login_required
-@require_GET
 def edit_endpoint(request, endpoint_id=None):
 
     if endpoint_id is None:
@@ -350,7 +355,7 @@ def get_range_data(request, metric, step=900):
         elif source == "backup":
             assert prom_query.target_system == PromQuery.TargetSystem.RESTIC, "Absent metric for Backup-Server obj."
             if all:
-                parameter = user.get_accessible_servers_string()
+                parameter = user.get_accessible_backup_servers_string()
             else:
                 active_entity = request.user.active_backup_server
                 parameter = f"{active_entity.domain}:{active_entity.port}"

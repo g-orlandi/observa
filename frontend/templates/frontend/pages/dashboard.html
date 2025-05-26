@@ -35,6 +35,16 @@
         <div id="textEndpoints" class="mt-2 fw-bold text-success"></div>
       </div>
     </div>
+
+        <!-- Colonna 4 -->
+    <div class="col-md-2">
+      <div class="p-3 text-center">
+        <h6>Backup Servers</h6>
+        <div id="gaugeBackups"></div>
+        <div id="textBackups" class="mt-2 fw-bold text-success"></div>
+      </div>
+    </div>
+    
   </div>
 </div>
 {% endblock %}
@@ -50,7 +60,7 @@
       </div>
       <div class="chart"
            id="uptimeChart"
-           data-metric="monitor-status-all:endpoint:all;is-on-all:server:all">
+           data-metric="monitor-status-all:endpoint:all;is-on-all:server:all;restic-up-all:backup:all;">
       </div>
     </div>
   </div>

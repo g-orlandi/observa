@@ -67,6 +67,8 @@ def init_db_query():
                 ("Snapshot size", "snap-size", 'sum(restic_latest_snapshot_size_bytes{instance=~"PLACEHOLDER"}) / 1e9'),
                 ("Snapshot file count", "snap-file-count", 'sum(restic_latest_snapshot_file_count{instance=~"PLACEHOLDER"})'),
                 ("Last snap timestamp", "last-snap-timestamp", 'round((time() - min(restic_last_snapshot_timestamp_seconds{instance=~"PLACEHOLDER"})) / 3600, 1/100)'),
+                ("Restic status all", "restic-up-all", 'sum(restic_exporter_up{instance=~"PLACEHOLDER"})'),
+            
             ]
 
 
