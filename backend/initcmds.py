@@ -62,11 +62,11 @@ def init_db_query():
         if not PromQuery.objects.filter(target_system=PromQuery.TargetSystem.RESTIC).exists():
             target_system = "restic"
             queries = [
-                # ("Monitor status", "monitor-status", 'monitor_status{monitor_url=~"PLACEHOLDER"}'),
-                # ("Monitor status all", "monitor-status-all", 'sum(monitor_status{monitor_url=~"PLACEHOLDER"})'),
-                # ("Response time", "response-time", 'avg_over_time(monitor_response_time{monitor_url="PLACEHOLDER"}[5m])'),
-                # ("Certificate days remaining", "cert-days-rem", 'monitor_cert_days_remaining{monitor_url="PLACEHOLDER"}'),
-                # ("Uptime percentage", "uptime-perc", 'round(avg_over_time(monitor_status{monitor_url="PLACEHOLDER"}[30d])*100, 1/100)')
+                ("Restic status", "restic-up", 'restic_exporter_up{instance=~"PLACEHOLDER"}'),
+                ("Snapshots count", "snaps-count", 'sum(restic_snapshot_count{instance=~"PLACEHOLDER"})'),
+                ("Snapshot size", "snap-size", 'sum(restic_latest_snapshot_size_bytes{instance=~"PLACEHOLDER"}) / 1e9'),
+                ("Snapshot file count", "snap-file-count", 'sum(restic_latest_snapshot_file_count{instance=~"PLACEHOLDER"})'),
+                ("Last snap timestamp", "last-snap-timestamp", 'round((time() - min(restic_last_snapshot_timestamp_seconds{instance=~"PLACEHOLDER"})) / 3600, 1/100)'),
             ]
 
 

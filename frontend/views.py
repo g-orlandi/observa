@@ -112,7 +112,7 @@ def backup(request):
     ]
     charts = [
         {"id": "snapcountChart", "title": "Snapshot count Trend", "metric": "snaps-count:backup:0", "color": "#a110a2", "col": 12, "entity": "backup"},
-        {"id": "filesizeChart", "title": "File size per snapshot Trend", "metric": "snap-file-size:backup:0", "color": "#6610f2", "col": 12, "entity": "backup"},
+        {"id": "filesizeChart", "title": "File size per snapshot Trend (GB)", "metric": "snap-size:backup:0", "color": "#6610f2", "col": 12, "entity": "backup"},
         {"id": "filecountChart", "title": "File count per snapshot trend", "metric": "snap-file-count:backup:0", "color": "#0d6efd", "col": 12, "entity": "backup"},
     ]
     return render(request, "frontend/pages/info.html", {
