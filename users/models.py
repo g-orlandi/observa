@@ -68,8 +68,8 @@ class User(AbstractUser):
     
     def set_active_date_filters(self, start_date, end_date):
         DATE_FORMAT = "%Y-%m-%d"
-        start_date = datetime.strptime(start_date, DATE_FORMAT)
-        end_date = datetime.strptime(end_date, DATE_FORMAT)
+        start_date = datetime.strptime(start_date, DATE_FORMAT).date()
+        end_date = datetime.strptime(end_date, DATE_FORMAT).date()
 
         if start_date > end_date:
             raise Exception("Start date cannot be after the end date.")
@@ -119,8 +119,3 @@ class User(AbstractUser):
     @property
     def is_pro(self):
         return self.plan == User.Plan.PRO
-    # def get_all_entities(self):
-    #     servers = self.get_accessible_servers()
-    #     endpoints = self.get_accessible_endpoints()
-    #     combined = list(self.get_accessible_servers()) + list(self.get_accessible_endpoints())
-    #     return combined

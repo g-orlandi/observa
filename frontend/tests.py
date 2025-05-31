@@ -2,6 +2,9 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from unittest.mock import patch
+from backend.models import Server, PromQuery
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -74,3 +77,74 @@ class FrontendTests(TestCase):
 
         resources_link_classes = sidebar.find('li', id='link-resources').find('a').get('class', [])
         self.assertNotIn('disabled', resources_link_classes)
+
+    
+class MetricViewsTests(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="testuser",
+            password="pwd",
+            email="test@example.com"
+        )
+
+        self.server = Server.objects.create(
+            name="test",
+            user=self.user,
+            domain="google.com",
+            port=9090,
+            is_backup=False
+        )
+        self.user.active_server = self.server
+        self.user.save()
+
+        self.query = PromQuery.objects.create(
+            code="cpu_usage",
+            title="CPU Usage",
+            target_system=PromQuery.TargetSystem.PROMETHEUS
+        )
+
+    @patch("frontend.views.api.generic_call")
+    def test_get_instantaneous_data_success(self, mock_call):
+        self.client.login(username="testuser", password="pwd")
+        mock_call.return_value = "42"
+
+
+        response = self.client.get(
+            reverse("frontend:get_instantaneous_data", args=["cpu_usage"]),
+            {"source": "server"}
+        )
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), "42")
+
+    def test_get_instantaneous_data_invalid_metric(self):
+        self.client.login(username="testuser", password="pwd")
+        response = self.client.get(
+            reverse("frontend:get_instantaneous_data", args=["nonexistent"]),
+            {"source": "server"}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    @patch("frontend.views.api.generic_call")
+    def test_get_range_data_success(self, mock_call):
+        self.client.login(username="testuser", password="pwd")
+        mock_call.return_value = [
+            [int(datetime(2025, 5, 1, 10).timestamp()), 5.2],
+            [int(datetime(2025, 5, 1, 11).timestamp()), 7.1],
+        ]
+
+        self.user.set_active_date_filters("2025-05-01", "2025-05-01")
+
+        response = self.client.get(
+            reverse("frontend:get_range_data", args=["cpu_usage"]),
+            {"source": "server"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("labels", data)
+        self.assertIn("values", data)
+        self.assertEqual(data["title"], "CPU Usage")

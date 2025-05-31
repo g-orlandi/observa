@@ -293,8 +293,6 @@ def edit_endpoint(request, endpoint_id=None):
 
 ######################################################
 
-################### ########################
-
 @login_required
 @require_GET
 def get_instantaneous_data(request, metric):
