@@ -74,14 +74,6 @@ def init_db_groups():
                 "name": "Unimore",
                 "permissions": [],
             },
-            {
-                "name": "Google",
-                "permissions": [],
-            },
-            {
-                "name": "Facebook",
-                "permissions": [],
-            },
         ]
 
         for group_data in groups_data:

@@ -15,7 +15,6 @@ function drawChart(divId, dataList) {
       });
     }
   });
-
   const allDatesSet = new Set(seriesData.flatMap(s => s.labels));
   const allDates = Array.from(allDatesSet).sort((a, b) => new Date(a) - new Date(b));
 
@@ -102,6 +101,16 @@ function fetchAndRender(divId) {
       return res.json();
     });
   });
+
+  // for (let i = 0; i < promises.length; i++){
+  //   promises[i].then(dataList => {
+  //     console.log("Dati ricevuti:", dataList);
+  //     drawChart(divId, dataList);
+  //   })
+  //     //   .catch(err => {
+  // //     console.error("Errore nel caricamento delle metriche:", err);
+  // //   });
+  // }
 
   Promise.all(promises)
     .then(dataList => {

@@ -1,5 +1,6 @@
 from datetime import datetime
 import time
+import traceback
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -34,9 +35,7 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None, all=0):
         response = requests.get(final_request, auth=auth)
         response.raise_for_status()
         response = response.json().get('data', {}).get('result', [])
-        # if all:
-        #     pass
-        # else:
+
         response = response[0]
 
         if qtype:
@@ -48,6 +47,7 @@ def generic_call(parameter, prom_query, qtype, range_suffix=None, all=0):
     except Exception as e:
         print(f"Error in Prometheus request: {e}")
         print("Query:", final_request)
+        print(traceback.format_exc())
         return None
 
 def get_range_data(entity, metric, start_date, end_date):

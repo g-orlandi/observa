@@ -1,6 +1,8 @@
+import traceback
 from datetime import datetime
 from uuid import UUID
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -179,6 +181,7 @@ def get_online_entities(request):
 @login_required
 @require_GET
 def get_entity_status(request, entity_id=None):
+    html = '?'
     qtype = 0
     source = request.GET.get("source", "server")
     
@@ -224,22 +227,21 @@ def get_entity_status(request, entity_id=None):
 
         prom_query = PromQuery.objects.get(code=metric)
         response = api.generic_call(parameter, prom_query, qtype)
-        try:
-            color = "green" if int(response) == 1 else "red"
-            # color = "gray"
-            html = render_to_string("frontend/components/status_dot.html", {
-                "color": color,
-                "dim": "22px",
-                "title": f"Status: {'online' if int(response) == 1 else 'offline'}"
-            })
-        except Exception as e:
-            print('Error while retrieving entity status: ' + str(e))
-            html = '?'
-        return HttpResponse(html)
 
-    except (ValueError, PromQuery.DoesNotExist):
-        return HttpResponseBadRequest("Invalid parameters")
+        color = "green" if int(response) == 1 else "red"
+        html = render_to_string("frontend/components/status_dot.html", {
+            "color": color,
+            "dim": "22px",
+            "title": f"Status: {'online' if int(response) == 1 else 'offline'}"
+        })
 
+    except Exception as e:
+        # messages.error(request, 'Error while retrieving entity status: ' + str(e))
+        print("Error: " + str(e))
+        tb_str = traceback.format_exc()
+        print(tb_str)
+        
+    return HttpResponse(html)
 
 ######################################################
 

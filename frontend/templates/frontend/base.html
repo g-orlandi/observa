@@ -17,6 +17,7 @@
 
     </head>
     <body>
+
         <div class="d-flex">
 
             <!-- Sidebar -->
@@ -27,6 +28,27 @@
             <div class="flex-grow-1" style="margin-left: 280px;">
 
                 <div class="p-4">
+                {% if messages %}
+                <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <div style="position: absolute; top: 10px; right: 20px; font-size: 0.9rem;">
+                        <strong>Groups:</strong>
+                        {% for group in user.groups.all %}
+                            <span style="margin-right: 5px;">{{ group.name }}</span>
+                        {% empty %}
+                            <span>None</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
 
                     {% block content %}
                         <h2>Content goes here</h2>

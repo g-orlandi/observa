@@ -2,6 +2,7 @@ import threading
 from socketio.exceptions import TimeoutError as SocketTimeoutError
 
 import uuid
+from django.contrib import messages
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
@@ -76,6 +77,7 @@ class Endpoint(MonitoredEntity):
             try:
                 create_new_monitor(self.name, self.url)
             except SocketTimeoutError:
+                # Library returns every time this type of error, but job has been done
                 pass
             except Exception as e:
                 print(f"[Monitor Creation Error] {str(e)} ")

@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-<h2>Endpoints: view, create, edit and delete</h2>
+<h2></h2>
 
 <nav class="navbar navbar-light bg-light" style="justify-content: right; align-items: right;">
     {% if can_add_endpoint %}
@@ -23,8 +23,9 @@
         <tr>
             <th scope="col"></th>
             <th scope="col">Name</th>
-            <th scope="col">Description</th>
+            {% comment %} <th scope="col">Description</th> {% endcomment %}
             <th scope="col">URL</th>
+            <th scope="col">Group</th>
             <th scope="col">Endpoint status</th>
             <th scope="col"></th>
         </tr>
@@ -42,8 +43,9 @@
                     {{ p.name }}
                 </a>
             </td>
-            <td>{{ p.description }}</td>
+            {% comment %} <td>{{ p.description }}</td> {% endcomment %}
             <td>{{ p.url }}</td>
+            <td>{{ p.group }} </td>
             <td hx-get="{% url 'frontend:get_entity_status' p.id %}?source=endpoint"  hx-trigger="load, every 60s" hx-target="this" hx-swap="innerHTML">
                 Loading...
             </td>
