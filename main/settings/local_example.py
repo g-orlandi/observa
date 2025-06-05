@@ -19,5 +19,5 @@ DATABASES = {
 
 PROMETHEUS_URL = "http://prometheus.brainstorm.it/api/v1/query?query="
 PROMETHEUS_RANGE_URL = "http://prometheus.brainstorm.it/api/v1/query_range?query="
-PROMETHEUS_USER = 'admin'
-PROMETHEUS_PWD = '4jPRnwQFrvr4iFj7t5PiRECih4QCRDB6'
+PROMETHEUS_USER = 'USER'
+PROMETHEUS_PWD = 'PASSWORD'
