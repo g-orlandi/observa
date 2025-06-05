@@ -19,7 +19,6 @@ mkdir observa
 mkdir observa/public
 mkdir observa/public/static
 mkdir observa/public/media
-mkdir observa/logs
 ```
 
 Create and activate a virtualenv for the project:
@@ -94,7 +93,7 @@ Populate database struct:
 python manage.py migrate
 ```
 
-Update front-end assets (if any):
+Update front-end assets:
 
 ```bash
 npm install
@@ -121,44 +120,4 @@ pip install -r requirements/development.txt
 python manage.py migrate
 npm install
 python manage.py runserver
-```
-
----
-
-## Server update
-
-```bash
-sudo su
-su observa
-cd
-source setenv.bash
-git pull
-pip install -r requirements/production.txt
-python manage.py migrate
-npm install
-python manage.py collectstatic --noinput
-python manage.py compress
-#Now proceed as root
-exit
-supervisorctl status
-supervisorctl restart all
-service nginx restart
-```
-
----
-
-## Developer's tricks
-
-### view logs
-
-For example:
-
-```bash
-tail -f ../logs/*.log
-```
-
-or
-
-```bash
-tail -f ../logs/*.log | grep -i websocket
 ```
