@@ -5,7 +5,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Q
 
-from backend.models import Server, Endpoint
 from main import settings
 
 # Create your models here.
@@ -19,21 +18,21 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False, null=False)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     active_server = models.ForeignKey(
-        Server,
+        'backend.Server',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='active_user'
     )
     active_backup_server = models.ForeignKey(
-        Server,
+        'backend.Server',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='active_user_backup'
     )
     active_endpoint = models.ForeignKey(
-        Endpoint,
+        'backend.Endpoint',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -79,6 +78,7 @@ class User(AbstractUser):
             self.save()
 
     def get_accessible_servers(self):
+        from backend.models import Server
         # Remember: Django default is AND
         return Server.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
@@ -90,7 +90,8 @@ class User(AbstractUser):
         return "|".join(f"{s.domain}:{s.port}" for s in servers)
 
     def get_accessible_endpoints(self):
-        # Remember: Django default is AND
+        from backend.models import Endpoint
+    # Remember: Django default is AND
         return Endpoint.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
         ).distinct()
@@ -108,6 +109,7 @@ class User(AbstractUser):
     
     def get_accessible_backup_servers(self):
         # Remember: Django default is AND
+        from backend.models import Server
         return Server.objects.filter(
             Q(user=self) | Q(group__in=self.groups.all())
         ).filter(is_backup=True).distinct()
