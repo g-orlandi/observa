@@ -1,9 +1,9 @@
-# observa
+# Observa
 
 Author: Giovanni Orlandi  
 A.A: 2024-2025  
 
-# Observa
+---
 
 Observa is a web-based monitoring platform developed as part of a **Web Technologies exam** during a BSc in Computer Science.
 
