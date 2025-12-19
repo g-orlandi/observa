@@ -3,7 +3,30 @@
 Author: Giovanni Orlandi  
 A.A: 2024-2025  
 
-Progetto per l'esame di **Tecnologie Web**
+# Observa
+
+Observa is a web-based monitoring platform developed as part of a **Web Technologies exam** during a BSc in Computer Science.
+
+The system provides a unified view of server, web service, and backup supervision by aggregating heterogeneous monitoring metrics and presenting them through interactive, time-series–based dashboards.
+
+Observa acts as a presentation layer on top of existing monitoring tools, delegating data collection and storage to Prometheus and related services, while offering a normalized and user-friendly interface for system administrators.
+
+## Main features
+
+- Monitoring of web endpoints availability and response times
+- Supervision of remote servers (CPU, memory, disk usage)
+- Monitoring of backup servers and incremental backup status
+- Time-series visualization with multiple levels of granularity
+- Free and Pro usage levels with different monitoring capabilities
+
+## Technology stack
+
+- Backend: Django (Python)
+- Frontend: HTML, JavaScript, HTMX
+- Monitoring & metrics: Prometheus
+- Backup monitoring: Restic
+- Uptime monitoring: Uptime Kuma
+
 
 ---
 
